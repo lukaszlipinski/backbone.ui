@@ -3,8 +3,12 @@
 (function(Backbone, _, $) {
     "use strict";
 
-    Backbone.UI = Backbone.UI || {
+    var tabindex = 0;
 
+    Backbone.UI = Backbone.UI || {
+        getNextTabIndex : function() {
+            return ++tabindex;
+        }
     };
 }(Backbone, _, jQuery));
 

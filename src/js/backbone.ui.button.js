@@ -78,8 +78,8 @@
 	initialize : function() {
             var model = this.model;
 
-            model.on('change:disabled', this._handleDisabledChanage, this);
-            model.on('change:state', this._handleActiveChanage, this);
+            model.on('change:disabled', this._handleDisabledChange, this);
+            model.on('change:state', this._handleActiveChange, this);
             model.on('change:caption', this.render, this);
 
             this.template = $(model.getTemplate()).html();
@@ -111,11 +111,11 @@
             model.trigger(event_name, model);
 	},
 
-        _handleDisabledChanage : function() {
+        _handleDisabledChange : function() {
             this.$el.toggleClass('disabled', this.model.isDisabled());
         },
 
-        _handleActiveChanage : function() {
+        _handleActiveChange : function() {
             this.$el.toggleClass("active", this.model.getState());
         },
 
