@@ -8,6 +8,10 @@
     color:white;
 }
 
+.spinner.disabled {
+    background-color:black;
+}
+
 *:first-child+html .spinner {
     display:inline;
 }
@@ -48,4 +52,8 @@
     position:relative;
     line-height:14px;
     font-size:12px;
+}
+
+.spinner.disabled .middle input {
+    color:red;
 }

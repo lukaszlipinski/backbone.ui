@@ -5,17 +5,13 @@
 
     var supported_events = ['btn:click', 'btn:click:even', 'btn:click:odd'];
 
-    var ButtonModel = Backbone.Model.extend({
+    var ButtonModel = Backbone.UI.ComponentModel.extend({
 	defaults : {
 	    caption : '',
 	    disabled : false,
 	    template : '#tpl_button',
 	    toggle : false,
 	    state : false
-	},
-
-	getTemplate : function() {
-	    return this.get('template');
 	},
 
         setState : function(value) {
@@ -46,30 +42,10 @@
 
         getCaption : function() {
             return this.get('caption');
-        },
-
-        enable : function() {
-            this.set('disabled', false);
-
-            return this;
-        },
-
-        isEnabled : function() {
-	    return !this.get('disabled');
-	},
-
-        disable : function() {
-            this.set('disabled', true);
-
-            return this;
-        },
-
-        isDisabled : function() {
-	    return this.get('disabled');
-	}
+        }
     });
 
-    var ButtonView = Backbone.View.extend({
+    var ButtonView = Backbone.UI.ComponentView.extend({
 	events : {
 	    'click.button' : '_handleButtonClick',
             'touchend.button' : '_handleButtonClick'
@@ -90,8 +66,8 @@
 	render : function() {
 	    this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
 
-            this._handleDisabledChanage();
-            this._handleActiveChanage();
+            this._handleDisabledChange();
+            this._handleActiveChange();
 	},
 
 	_handleButtonClick : function(e) {
@@ -119,7 +95,7 @@
             this.$el.toggleClass("active", this.model.getState());
         },
 
-        destroy : function() {
+        _destroy : function() {
             this.$el.off('.button');
             this.model.off(null, null, this);
         }
@@ -133,26 +109,6 @@
 	    model : model
 	});
 
-	return {
-            setCaption : _.bind(model.setCaption, model),
-            getCaption : _.bind(model.getCaption, model),
-            setState : _.bind(model.setState, model),
-            getState : _.bind(model.getState, model),
-            enable : _.bind(model.enable, model),
-            disable : _.bind(model.disable, model),
-            on : function(event_name, fn) {
-                if (supported_events.indexOf(event_name) > -1) {
-                    model.on(event_name, fn);
-                } else {
-                    throw "Button component doesn't support '" + event_name + "' event";
-                }
-            },
-
-            destroy : function() {
-                view.destroy();
-                view = null;
-                model = null;
-            }
-        };
+	return model;
     };
 }(Backbone, _, jQuery));

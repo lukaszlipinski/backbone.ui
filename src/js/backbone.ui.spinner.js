@@ -3,7 +3,11 @@
 (function(Backbone, _, $) {
     "use strict";
 
-    var supported_events = [];
+    var ENTER = Backbone.UI.KEYS.ENTER,
+        KEY_UP = Backbone.UI.KEYS.KEY_UP,
+        KEY_DOWN = Backbone.UI.KEYS.KEY_DOWN;
+
+    var supported_events = ['sp:change:value'];
 
     var default_settings = {
         type_integer : {
@@ -17,40 +21,43 @@
             step : 500,
             max : Infinity,
             min : 0
-        },
-        type_time : {
-            value : '00:00:00',
-            step : '00:30:00',
-            max : '240:00:00',
-            min : '00:00:00'
         }
     };
 
-    var SpinnerModel = Backbone.Model.extend({
+    var SpinnerModel = Backbone.UI.ComponentModel.extend({
 	defaults : {
 	    template : '#tpl_spinner',
             disabled : false,
             tabindex : 1
 	},
 
-        _changeValue : function(value, step, sign) {
-            var type = this.getType();
-
-            //Parse value
-            value = type === 'integer'
-                ? parseInt(value, 10)
-                : (type === 'float' ? parseFloat(value) : value);
-
-            //Change it
-            value = type === 'integer'
-                ? value + sign * step
-                : (type === 'float' ? Math.round((value + sign * step) * 100) / 100 : value);
-
-            return this._checkLimitations(value);
+        initialize : function() {
+            this.on('change:type', this._handleTypeChange, this);
+            this.on('change:max', this._handleMaxChange, this);
+            this.on('change:min', this._handleMinChange, this);
         },
 
-        _checkLimitations : function(value) {
-            var max = this.getMax(), min = this.getMin();
+        _handleTypeChange : function() {
+            this.setValue(this.getValue());
+        },
+
+        _handleMinChange : function() {
+            this.setValue(this.getValue());
+        },
+
+        _handleMaxChange : function() {
+            this.setValue(this.getValue());
+        },
+
+        _changeValue : function(value, step, sign, silent) {
+            var currentValue = this.getValue(), type = this.getType(),
+                max = this.getMax(), min = this.getMin();
+
+            value = type === 'integer'
+                ? parseInt(value, 10) + sign * step
+                : (type === 'float'
+                    ? Math.round((parseFloat(value) + sign * step) * 100) / 100
+                    : value);
 
             if (value > max) {
                 value = max;
@@ -58,37 +65,55 @@
                 value = min;
             }
 
-            return value;
-        },
+            this.set('value', value, {silent : silent});
 
-        getTemplate : function() {
-	    return this.get('template');
-	},
+            if (currentValue === value) {
+                this.trigger('sp:revert:value');
+            }
+        },
 
         getType : function() {
             return this.get('type');
+        },
+
+        setType : function(value) {
+            this.set('type', value);
+
+            return this;
         },
 
         getStep : function() {
             return this.get('step');
         },
 
+        setStep : function(value) {
+            this.set('step', value);
+
+            return this;
+        },
+
         getMax : function() {
             return this.get('max');
+        },
+
+        setMax : function(value) {
+            this.set('max', value);
+
+            return this;
         },
 
         getMin : function() {
             return this.get('min');
         },
 
+        setMin : function(value) {
+            this.set('min', value);
+
+            return this;
+        },
+
         setValue : function(value, silent) {
-            value = this._checkLimitations(value);
-
-            this.set('value', value, {silent : silent});
-
-            if (!silent) {
-                this.trigger('sp:change:value', this);
-            }
+            this._changeValue(value, 0, 1, silent);
 
             return this;
         },
@@ -97,12 +122,16 @@
             return this.get('value');
         },
 
+        getPreviousValue : function(value) {
+            return this.previous('value');
+        },
+
         stepUp : function(multiplier) {
             var step = this.getStep();
 
-            step = multiplier ? multiplier * step : step;
+            step *= multiplier || 1;
 
-            this.setValue(this._changeValue(this.getValue(), step, 1));
+            this._changeValue(this.getValue(), step, 1);
 
             return this;
         },
@@ -110,40 +139,22 @@
         stepDown : function(multiplier) {
             var step = this.getStep();
 
-            step = multiplier ? multiplier * step : step;
+            step *= multiplier || 1;
 
-            this.setValue(this._changeValue(this.getValue(), step, -1));
-
-            return this;
-        },
-
-        enable : function() {
-            this.set('disabled', false);
+            this._changeValue(this.getValue(), step, -1);
 
             return this;
-        },
-
-        isEnabled : function() {
-	    return !this.get('disabled');
-	},
-
-        disable : function() {
-            this.set('disabled', true);
-
-            return this;
-        },
-
-        isDisabled : function() {
-	    return this.get('disabled');
-	}
+        }
     });
 
-    var SpinnerView = Backbone.View.extend({
+    var SpinnerView = Backbone.UI.ComponentView.extend({
 	$input : null,
 
         events : {
             'click.spinner .sp-btn-up' : '_handleButtonUpClick',
-            'click.spinner .sp-btn-down' : '_handleButtonDownClick'
+            'click.spinner .sp-btn-down' : '_handleButtonDownClick',
+            'blur.spinner input' : '_handleInputBlur',
+            'keypress.spinner input' : '_handleInputKeyPress'
 	},
 
 	initialize : function() {
@@ -151,6 +162,7 @@
 
             model.on('change:disabled', this._handleDisabledChange, this);
             model.on('change:value', this._handleValueChange, this);
+            model.on('sp:revert:value', this._handleRevertChange, this);
 
             this.template = $(model.getTemplate()).html();
 
@@ -160,6 +172,10 @@
 	render : function() {
 	    this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
             this.$input = this.$el.find('.sp-input');
+
+            if (!this.$input.is('input')) {
+                throw "Skin should contain 'input' HTMLElement.";
+            }
 	},
 
         _handleButtonUpClick : function() {
@@ -182,17 +198,70 @@
             model.stepDown();
         },
 
-        _handleValueChange : function(model) {
-            var isInput = this.$input.is('input');
+        _handleInputBlur : function() {
+            this.model.setValue(this.$input.val(), true);
+        },
 
-            this.$input[isInput ? 'val' : 'html'](model.getValue());
+        _handleInputKeyPress : function(e) {
+            var model = this.model,
+                key = e.keyCode, ctrl = e.ctrlKey, shift = e.shiftKey,
+                max = model.getMax(), min = model.getMin(),
+                    restricted_max = max === Infinity || max === -Infinity,
+                    restricted_min = min === Infinity || min === -Infinity;
+
+            if (model.isDisabled()) {
+                return;
+            }
+
+            if (key === ENTER) {
+                model.setValue(this.$input.val());
+            }
+            else if (key === KEY_UP && shift && !restricted_max) {
+                model.setValue(max);
+            }
+            else if (key === KEY_UP && ctrl) {
+                model.stepUp(2);
+            }
+            else if (key === KEY_UP) {
+                model.stepUp();
+            }
+            else if (key === KEY_DOWN && shift && !restricted_min) {
+                model.setValue(min);
+            }
+            else if (key === KEY_DOWN && ctrl) {
+                model.stepDown(2);
+            }
+            else if (key === KEY_DOWN) {
+                model.stepDown();
+            }
+        },
+
+        _handleValueChange : function(model) {
+            var value = model.getValue(),
+                previousValue = model.getPreviousValue();
+
+            this.$input.val(value);
+
+            this.model.trigger('sp:change:value', this, value, previousValue);
+        },
+
+        _handleRevertChange : function() {
+            this.$input.val(this.model.getValue());
         },
 
         _handleDisabledChange : function() {
-            this.$el.toggleClass('disabled', this.model.isDisabled());
+            var isDisabled = this.model.isDisabled();
+
+            this.$el.toggleClass('disabled', isDisabled);
+
+            if (isDisabled) {
+                this.$input.attr('disabled', 'disabled');
+            } else {
+                this.$input.removeAttr('disabled');
+            }
         },
 
-        destroy : function() {
+        _destroy : function() {
             this.$el.off('.spinner');
             this.model.off(null, null, this);
         }
@@ -215,12 +284,6 @@
 	    model : model
 	});
 
-	return {
-            destroy : function() {
-                view.destroy();
-                view = null;
-                model = null;
-            }
-        };
+	return model;
     };
 }(Backbone, _, jQuery));
