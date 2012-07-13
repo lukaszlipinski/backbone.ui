@@ -2,26 +2,35 @@
     display:inline-block;
     position:relative;
     overflow:hidden;
-    height:23px;
-    padding:0 6px;
     cursor:pointer;
+	padding:5px 12px;
     vertical-align: middle;
     -moz-user-select: -moz-none;
     -khtml-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    background-color:gray;
+    background-color:#8dc63f;
     color:white;
     text-align: center;
-    line-height: 23px;
+    line-height: 16px;
+	border-radius: 15px;
+	font-family:Tahoma;
+	font-size:12px;
+	vertical-align: middle;
+	height:17px;
 }
 
 *:first-child+html .button {
     display:inline;
 }
 
+.button:hover {
+	background-color:#96d246;
+}
+
 .button.disabled {
-    background-color: black;
-    color:white;
+    background-color: #363636;
+    color:#898989;
+	cursor:default;
 }
