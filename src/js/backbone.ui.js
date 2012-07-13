@@ -6,9 +6,7 @@
     var tabindex = 0;
 
     Backbone.UI = Backbone.UI || {
-        getNextTabIndex : function() {
-            return ++tabindex;
-        }
+
     };
 
     Backbone.UI.KEYS = {
@@ -22,9 +20,11 @@
             disabled : false,
             template : ''
         },
+
         getTemplate : function() {
-	    return this.get('template');
-	},
+			return this.get('template');
+		},
+
         enable : function() {
             this.set('disabled', false);
 
@@ -32,8 +32,8 @@
         },
 
         isEnabled : function() {
-	    return !this.get('disabled');
-	},
+			return !this.get('disabled');
+		},
 
         disable : function() {
             this.set('disabled', true);
@@ -42,13 +42,26 @@
         },
 
         isDisabled : function() {
-	    return this.get('disabled');
-	}
+			return this.get('disabled');
+		}
     });
 
     Backbone.UI.ComponentView = Backbone.View.extend({
 
     });
+
+	Backbone.UI.ComponentController = Backbone.View.extend({
+		getTemplate : function() {
+			var template = $(this.model.getTemplate()).html();
+			return _.template(template, null, {variable: 'data'});
+		}
+	});
+
+	/*Function.prototype.inherits = function(F) {
+		this.prototype = new F;
+		this.prototype.constructor = this;
+		this.prototype.parent = F.prototype;
+	};*/
 }(Backbone, _, jQuery));
 
 

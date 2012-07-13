@@ -17,19 +17,31 @@
 
     //BUTTON
 
-    var button1 = new Backbone.UI.Button($('.btn_example1'), {
-		caption : 'First button', toggle : true, disabled : true}
-	);
-
-	var button2 = new Backbone.UI.Button($('.btn_example2'), {
-		caption : 'Second button', toggle : true, state : true
+    var button1 = new Backbone.UI.Button({
+		el : $('.btn_example1'),
+		settings : {
+			caption : 'First button',
+			toggle : true,
+			disabled : true
+		}
 	});
 
-    button1.on('btn:click', function(model) {
-		console.log("click", model.getState());
-    });
+	var button2 = new Backbone.UI.Button({
+		el : $('.btn_example2'),
+		settings : {
+			caption : 'Second button',
+			toggle : true,
+			state : true
+		}
+	});
 
-    button2.on('btn:click', function(model) {
+    button1.on('btn:click', function(_btn) {
+		console.log("click", _btn.getState());
+    }).on('btn:click:even', function(_btn) {
+		console.log(_btn.getState());
+	});
+
+    button2.on('btn:click', function(_btn) {
 		button1.setCaption('Hey').enable();
     });
 
