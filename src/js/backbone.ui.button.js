@@ -6,29 +6,29 @@
     var supported_events = ['btn:click', 'btn:click:even', 'btn:click:odd'];
 
     var ButtonModel = Backbone.UI.ComponentModel.extend({
-	defaults : {
-	    caption : '',
-	    disabled : false,
-	    template : '#tpl_button',
-	    toggle : false,
-	    state : false
-	},
+		defaults : {
+			caption : '',
+			disabled : false,
+			template : '#tpl_button',
+			toggle : false,
+			state : false
+		},
 
-        setState : function(value) {
-	    this.set('state', value);
+		setState : function(value) {
+			this.set('state', value);
 
-            return this;
-	},
+			return this;
+		},
 
-	getState : function() {
-	    return this.get('state');
-	},
+		getState : function() {
+			return this.get('state');
+		},
 
-	toggleState : function() {
-            this.set('state', !this.get('state'));
+		toggleState : function() {
+			this.set('state', !this.get('state'));
 
-            return this;
-	},
+			return this;
+		},
 
         isToggled : function() {
             return this.get('toggle');
@@ -46,46 +46,48 @@
     });
 
     var ButtonView = Backbone.UI.ComponentView.extend({
-	events : {
-	    'click.button' : '_handleButtonClick',
-            'touchend.button' : '_handleButtonClick'
-	},
+		events : {
+			'click.button' : '_handleButtonClick',
+			'touchend.button' : '_handleButtonClick'
+		},
 
-	initialize : function() {
-            var model = this.model;
+		initialize : function() {
+			var model = this.model;
 
-            model.on('change:disabled', this._handleDisabledChange, this);
-            model.on('change:state', this._handleActiveChange, this);
-            model.on('change:caption', this.render, this);
+			this.controller = this.options.controller;
 
-            this.template = $(model.getTemplate()).html();
+			model.on('change:disabled', this._handleDisabledChange, this);
+			model.on('change:state', this._handleActiveChange, this);
+			model.on('change:caption', this.render, this);
 
-	    this.render();
-	},
+			this.template = $(model.getTemplate()).html();
 
-	render : function() {
-	    this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
+			this.render();
+		},
 
-            this._handleDisabledChange();
-            this._handleActiveChange();
-	},
+		render : function() {
+			this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
 
-	_handleButtonClick : function(e) {
-	    var model = this.model;
+				this._handleDisabledChange();
+				this._handleActiveChange();
+		},
 
-	    if (model.isDisabled()) {
-		return;
-	    }
+		_handleButtonClick : function(e) {
+			var model = this.model;
 
-	    var event_name = "btn:click" + (model.getState() ? ":even" : ":odd");
+			if (model.isDisabled()) {
+			return;
+			}
 
-	    if (model.isToggled()) {
-                model.toggleState();
-	    }
+			var event_name = "btn:click" + (model.getState() ? ":even" : ":odd");
 
-	    model.trigger('btn:click', model);
-            model.trigger(event_name, model);
-	},
+			if (model.isToggled()) {
+					model.toggleState();
+			}
+
+			model.trigger('btn:click', model);
+				model.trigger(event_name, model);
+		},
 
         _handleDisabledChange : function() {
             this.$el.toggleClass('disabled', this.model.isDisabled());
@@ -102,13 +104,18 @@
     });
 
     Backbone.UI.Button = function($el, settings) {
-	var model = new ButtonModel(settings);
+		var _self = this;
 
-	var view = new ButtonView({
-	    el : $el,
-	    model : model
-	});
+		//Model
+		var model = new ButtonModel(settings);
 
-	return model;
+		//View
+		var view = new ButtonView({
+			el : $el,
+			model : model,
+			controller : _self
+		});
+
+		return _self;
     };
 }(Backbone, _, jQuery));
