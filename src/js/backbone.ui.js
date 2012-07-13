@@ -57,11 +57,7 @@
 		}
 	});
 
-	/*Function.prototype.inherits = function(F) {
-		this.prototype = new F;
-		this.prototype.constructor = this;
-		this.prototype.parent = F.prototype;
-	};*/
+	Backbone.UI.ComponentFacade = Backbone.View.extend({
+		
+	});
 }(Backbone, _, jQuery));
-
-

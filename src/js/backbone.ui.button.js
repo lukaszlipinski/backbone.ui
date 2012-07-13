@@ -11,13 +11,13 @@
  *								   every time when button is clicked additionaly
  *								   special events are triggered
  *	   @param {Boolean} state      determinates the current state of the button.
- *								   As default is 'false' (firing events starts with 'odd') and doesn't change if the
+ *								   As default is 'true' (firing events starts with 'event') and doesn't change if the
  *								   'toggle' property is not set to 'true'
  *
  * Triggered events:
  * - btn:click        triggered every time when button is clicked
- * - btn:click:even   triggered only 'even' times (state = false)
- * - btn:click:odd    triggered only 'odd' times (state = true)
+ * - btn:click:even   triggered only 'even' times (state = true)
+ * - btn:click:odd    triggered only 'odd' times (state = false)
  *
  * Css classes:
  * - .btn-caption    determinates position of the caption
@@ -35,19 +35,7 @@
 			disabled : false,
 			template : '#tpl_button',
 			toggle : false,
-			state : false
-		},
-
-		initialize : function() {
-			this.on('change:disabled', function() {
-				this.trigger('model:change:disabled');
-			}, this);
-			this.on('change:state', function() {
-				this.trigger('model:change:state');
-			}, this);
-			this.on('change:caption', function() {
-				this.trigger('model:change:caption');
-			}, this);
+			state : true
 		},
 
 		setState : function(value) {
@@ -105,9 +93,9 @@
 
 			this.controller = this.options.controller;
 
-			model.on('model:change:disabled', this._handleDisabledChange, this);
-			model.on('model:change:state', this._handleStateChange, this);
-			model.on('model:change:caption', this.render, this);
+			model.on('change:disabled', this._handleDisabledChange, this);
+			model.on('change:state', this._handleStateChange, this);
+			model.on('change:caption', this.render, this);
 
 			this.template = this.controller.getTemplate();
 
@@ -131,21 +119,8 @@
 			this._handleStateChange();
 		},
 
-		_handleButtonClick : function(e) {
-			var model = this.model;
-
-			if (model.isDisabled()) {
-				return;
-			}
-
-			var event_name = "btn:click" + (model.getState() ? ":even" : ":odd");
-
-			if (model.isToggled()) {
-				model.toggleState();
-			}
-
-			this.controller.trigger('btn:click', this.controller);
-			this.controller.trigger(event_name , this.controller);
+		_handleButtonClick : function() {
+			this.controller._handleClickEvent();
 		},
 
         _handleDisabledChange : function() {
@@ -179,6 +154,23 @@
 				model : this.model,
 				controller : this
 			});
+		},
+
+		_handleClickEvent : function() {
+			var model = this.model;
+
+			if (model.isDisabled()) {
+				return;
+			}
+
+			//Thigger common event
+			this.trigger('btn:click', this);
+
+			if (model.isToggled()) {
+				this.trigger("btn:click:" + (model.getState() ? "even" : "odd"), this);
+
+				model.toggleState();
+			}
 		},
 
 		/**
