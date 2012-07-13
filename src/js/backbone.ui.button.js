@@ -8,11 +8,12 @@
  *     @param {Boolean} disabled   determinates if button is responsible to user or not
  *     @param {String} template    determinates template source
  *     @param {Boolean} toggle     when this property is true, 'state' changes
- *								   every time when button is clicked additionaly
- *								   special events are triggered
- *	   @param {Boolean} state      determinates the current state of the button.
- *								   As default is 'true' (firing events starts with 'event') and doesn't change if the
- *								   'toggle' property is not set to 'true'
+ *				   every time when button is clicked additionaly
+ *				   special events are triggered
+ *     @param {Boolean} state      determinates the current state of the button.
+ *				   As default is 'true' (firing events starts
+ *				   with 'event') and doesn't change if the
+ *				   'toggle' property is not set to 'true'
  *
  * Triggered events:
  * - btn:click        triggered every time when button is clicked
