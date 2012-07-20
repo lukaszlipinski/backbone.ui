@@ -1,5 +1,35 @@
 /*globals Backbone, _, jQuery */
 
+/**
+ * It's a component with input and two buttons which allows to increment
+ * or decrement value by some amount which can be determinated as a 'step'.
+ * It also allows to change value directly in the input field. The value can
+ * be limited by 'max' and 'min' settings
+ *
+ * @param params
+ *    {Number} value       value of the spinner
+ *    {Number} step        determinates step which will be take after click on button
+ *    {Number} max         determinates maximal value which can be stored in the component
+ *    {Number} min         determinates minimal value which can be stored in the component
+ *    {Boolean} disabled   determinates if component reacts on user's actions
+ *    {String} type        determinates how spinner will interprete values
+ *	      Possible values:
+ *        - 'integer'   treats all values as intergers
+ *        - 'float'     treats all values as floats
+ *    {String} template    determinates template source
+ *	  {Number} tabindex    determinates the HTML tabindex attribute
+ *
+ * Triggered events:
+ * - sp:change:value    triggered when value was changed
+ * - sp:change:max      triggered when max setting is changed
+ * - sp:change:min      triggered when min setting is changed
+ *
+ * Css classes:
+ * - .sp-input      input html node
+ * - .sp-btn-up     button up html node
+ * - .sp-btn-down   button down html node
+ */
+
 (function(Backbone, _, $) {
     "use strict";
 
@@ -152,8 +182,8 @@
         events : {
             'click.spinner .sp-btn-up' : '_handleButtonUpClick',
             'click.spinner .sp-btn-down' : '_handleButtonDownClick',
-            'blur.spinner input' : '_handleInputBlur',
-            'keypress.spinner input' : '_handleInputKeyPress'
+            'blur.spinner .sp-input' : '_handleInputBlur',
+            'keypress.spinner .sp-input' : '_handleInputKeyPress'
 		},
 
 		initialize : function() {
@@ -163,6 +193,8 @@
 
 			model.on('change:disabled', this._handleDisabledChange, this);
 			model.on('change:value', this._handleValueChange, this);
+			model.on('change:max', this._handleMaxChange, this);
+			model.on('change:min', this._handleMinChange, this);
 			model.on('sp:revert:value', this._handleRevertChange, this);
 
 			this.template = $(model.getTemplate()).html();
@@ -204,6 +236,14 @@
 
 			this.controller._handleValueChange();
         },
+
+		_handleMaxChange : function() {
+			this.controller._handleMaxChange();
+		},
+
+		_handleMinChange : function() {
+			this.controller._handleMinChange();
+		},
 
         _handleRevertChange : function() {
             this.$input.val(this.model.getValue());
@@ -312,6 +352,14 @@
                 previousValue = model.getPreviousValue();
 
             this.trigger('sp:change:value', this, value, previousValue);
+        },
+
+		_handleMaxChange : function() {
+            this.trigger('sp:change:max', this, this.model.getMax());
+        },
+
+		_handleMinChange : function() {
+            this.trigger('sp:change:min', this, this.model.getMin());
         },
 
 		/**
