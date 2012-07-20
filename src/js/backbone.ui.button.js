@@ -84,8 +84,8 @@
 		$caption : null,
 
 		events : {
-			'click.button' : '_handleButtonClickEvent',
-			'touchend.button' : '_handleButtonClickEvent'
+			'click.button' : '_handleClickEvent',
+			'touchend.button' : '_handleClickEvent'
 		},
 
 		initialize : function() {
@@ -119,7 +119,7 @@
 			this._handleStateChange();
 		},
 
-		_handleButtonClickEvent : function() {
+		_handleClickEvent : function() {
 			this.controller._handleClickEvent();
 		},
 

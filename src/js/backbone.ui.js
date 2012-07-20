@@ -6,7 +6,9 @@
     var tabindex = 0;
 
     Backbone.UI = Backbone.UI || {
-
+		getNextTabIndex : function() {
+			return ++tabindex;
+		}
     };
 
     Backbone.UI.KEYS = {
@@ -55,9 +57,5 @@
 			var template = $(this.model.getTemplate()).html();
 			return _.template(template, null, {variable: 'data'});
 		}
-	});
-
-	Backbone.UI.ComponentFacade = Backbone.View.extend({
-		
 	});
 }(Backbone, _, jQuery));

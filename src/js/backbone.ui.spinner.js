@@ -7,8 +7,6 @@
         KEY_UP = Backbone.UI.KEYS.KEY_UP,
         KEY_DOWN = Backbone.UI.KEYS.KEY_DOWN;
 
-    var supported_events = ['sp:change:value'];
-
     var default_settings = {
         type_integer : {
             value : 0,
@@ -25,11 +23,11 @@
     };
 
     var SpinnerModel = Backbone.UI.ComponentModel.extend({
-	defaults : {
-	    template : '#tpl_spinner',
-            disabled : false,
-            tabindex : 1
-	},
+		defaults : {
+			template : '#tpl_spinner',
+				disabled : false,
+				tabindex : 1
+		},
 
         initialize : function() {
             this.on('change:type', this._handleTypeChange, this);
@@ -61,7 +59,8 @@
 
             if (value > max) {
                 value = max;
-            } else if (value < min) {
+            }
+			else if (value < min) {
                 value = min;
             }
 
@@ -148,38 +147,110 @@
     });
 
     var SpinnerView = Backbone.UI.ComponentView.extend({
-	$input : null,
+		$input : null,
 
         events : {
             'click.spinner .sp-btn-up' : '_handleButtonUpClick',
             'click.spinner .sp-btn-down' : '_handleButtonDownClick',
             'blur.spinner input' : '_handleInputBlur',
             'keypress.spinner input' : '_handleInputKeyPress'
-	},
+		},
 
-	initialize : function() {
-            var model = this.model;
+		initialize : function() {
+			var model = this.model;
 
-            model.on('change:disabled', this._handleDisabledChange, this);
-            model.on('change:value', this._handleValueChange, this);
-            model.on('sp:revert:value', this._handleRevertChange, this);
+			this.controller = this.options.controller;
 
-            this.template = $(model.getTemplate()).html();
+			model.on('change:disabled', this._handleDisabledChange, this);
+			model.on('change:value', this._handleValueChange, this);
+			model.on('sp:revert:value', this._handleRevertChange, this);
 
-	    this.render();
-	},
+			this.template = $(model.getTemplate()).html();
 
-	render : function() {
-	    this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
-            this.$input = this.$el.find('.sp-input');
+			this.render();
+		},
 
-            if (!this.$input.is('input')) {
-                throw "Skin should contain 'input' HTMLElement.";
-            }
-	},
+		render : function() {
+			this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
+			this.$input = this.$el.find('.sp-input');
+
+			if (!this.$input.is('input')) {
+				throw "Skin should contain 'input' HTMLElement.";
+			}
+
+			//Apply default settings on the HTML nodes
+			this._handleDisabledChange();
+		},
 
         _handleButtonUpClick : function() {
-            var model = this.model;
+			this.controller._handleButtonUpClick();
+        },
+
+        _handleButtonDownClick : function() {
+            this.controller._handleButtonDownClick();
+        },
+
+        _handleInputBlur : function() {
+            this.controller._handleInputBlur(this.$input.val());
+        },
+
+        _handleInputKeyPress : function(e) {
+            this.controller._handleInputKeyPress(this.$input.val(), e.keyCode, e.ctrlKey, e.shiftKey);
+        },
+
+        _handleValueChange : function() {
+            //Change value in the HTML
+			this.$input.val(this.model.getValue());
+
+			this.controller._handleValueChange();
+        },
+
+        _handleRevertChange : function() {
+            this.$input.val(this.model.getValue());
+        },
+
+        _handleDisabledChange : function() {
+            var isDisabled = this.model.isDisabled();
+
+			this.$el.toggleClass('disabled', isDisabled);
+
+            if (isDisabled) {
+                this.$input.attr('disabled', 'disabled');
+            }
+			else {
+                this.$input.removeAttr('disabled');
+            }
+        },
+
+        destroy : function() {
+            this.$el.off('.spinner');
+            this.model.off(null, null, this);
+        }
+    });
+
+	/**
+	 * Controller
+	 */
+    Backbone.UI.Spinner = Backbone.UI.ComponentController.extend({
+		initialize : function() {
+			var settings = this.options.settings,
+				type = settings.type;
+
+			if (!default_settings['type_' + settings.type]) {
+				throw "Unsupported Backbone.UI.Spinner type";
+			}
+
+			this.model = new SpinnerModel(_.extend({tabindex : Backbone.UI.getNextTabIndex()}, default_settings['type_' + settings.type], settings));
+
+			this.view = new SpinnerView({
+				el : this.$el,
+				model : this.model,
+				controller : this
+			});
+		},
+
+		_handleButtonUpClick : function() {
+			var model = this.model;
 
             if (model.isDisabled()) {
                 return;
@@ -188,8 +259,8 @@
             model.stepUp();
         },
 
-        _handleButtonDownClick : function() {
-            var model = this.model;
+		_handleButtonDownClick : function() {
+			var model = this.model;
 
             if (model.isDisabled()) {
                 return;
@@ -198,23 +269,22 @@
             model.stepDown();
         },
 
-        _handleInputBlur : function() {
-            this.model.setValue(this.$input.val(), true);
+		_handleInputBlur : function(value) {
+			this.model.setValue(value, true);
         },
 
-        _handleInputKeyPress : function(e) {
-            var model = this.model,
-                key = e.keyCode, ctrl = e.ctrlKey, shift = e.shiftKey,
+		_handleInputKeyPress : function(value, key, ctrl, shift) {
+			var model = this.model,
                 max = model.getMax(), min = model.getMin(),
-                    restricted_max = max === Infinity || max === -Infinity,
-                    restricted_min = min === Infinity || min === -Infinity;
+                restricted_max = max === Infinity || max === -Infinity,
+                restricted_min = min === Infinity || min === -Infinity;
 
             if (model.isDisabled()) {
                 return;
             }
 
             if (key === ENTER) {
-                model.setValue(this.$input.val());
+                model.setValue(value);
             }
             else if (key === KEY_UP && shift && !restricted_max) {
                 model.setValue(max);
@@ -236,54 +306,135 @@
             }
         },
 
-        _handleValueChange : function(model) {
-            var value = model.getValue(),
+		_handleValueChange : function() {
+			var model = this.model,
+				value = model.getValue(),
                 previousValue = model.getPreviousValue();
 
-            this.$input.val(value);
-
-            this.model.trigger('sp:change:value', this, value, previousValue);
+            this.trigger('sp:change:value', this, value, previousValue);
         },
 
-        _handleRevertChange : function() {
-            this.$input.val(this.model.getValue());
-        },
+		/**
+		 * Sets value of spinner
+		 *
+		 * @param {Number} value
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		setValue : function(value) {
+			this.model.setValue(value);
 
-        _handleDisabledChange : function() {
-            var isDisabled = this.model.isDisabled();
+			return this;
+		},
 
-            this.$el.toggleClass('disabled', isDisabled);
+		/**
+		 * Returns value of spinner
+		 *
+		 * @return {Number}
+		 */
+		getValue : function() {
+			return this.model.getValue();
+		},
 
-            if (isDisabled) {
-                this.$input.attr('disabled', 'disabled');
-            } else {
-                this.$input.removeAttr('disabled');
-            }
-        },
+		/**
+		 * Increases value of spinner by predefined step
+		 *
+		 * @param {Number} multiplier   amount the value is multilpied by
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		stepUp : function(multiplier) {
+			this.model.stepUp(multiplier);
 
-        _destroy : function() {
-            this.$el.off('.spinner');
-            this.model.off(null, null, this);
-        }
-    });
+			return this;
+		},
 
-    Backbone.UI.Spinner = function($el, settings) {
-	var type = settings.type;
+		/**
+		 * Decreases value of spinner by predefined step
+		 *
+		 * @param {Number} multiplier   amount the value is multilpied by
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		stepDown : function(multiplier) {
+			this.model.stepDown(multiplier);
 
-        if (!default_settings['type_' + type]) {
-            throw "Not supported Spinner type '" + type + "'";
-        }
+			return this;
+		},
 
-        var model = new SpinnerModel(_.extend({
-            tabindex : Backbone.UI.getNextTabIndex(),
-            type : type
-        }, default_settings['type_' + type], settings));
+		/**
+		 * Sets maximal allowed value in spinner
+		 *
+		 * @param {Number} value
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		setMax : function(value) {
+			this.model.setMax(value);
 
-	var view = new SpinnerView({
-	    el : $el,
-	    model : model
+			return this;
+		},
+
+		/**
+		 * Returns maximal allowed value in spinner
+		 *
+		 * @return {Number}
+		 */
+		getMax : function() {
+			return this.model.getMax();
+		},
+
+		/**
+		 * Sets minimal allowed value in spinner
+		 *
+		 * @param {Number} value
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		setMin : function(value) {
+			this.model.setMin(value);
+
+			return this;
+		},
+
+		/**
+		 * Returns minimal allowed value in spinner
+		 *
+		 * @return {Number}
+		 */
+		getMin : function() {
+			return this.model.getMin();
+		},
+
+		/**
+		 * Enables spinner
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		enable : function() {
+			this.model.enable();
+
+			return this;
+		},
+
+		/**
+		 * Disables spinner
+		 *
+		 * @return {Object} Backbone.UI.Spinner
+		 */
+		disable : function() {
+			this.model.disable();
+
+			return this;
+		},
+
+		/**
+		 * Destroys spinner
+		 */
+		destroy : function() {
+			this.view.destroy();
+			this.view = null;
+			this.model = null;
+		}
 	});
-
-	return model;
-    };
 }(Backbone, _, jQuery));
