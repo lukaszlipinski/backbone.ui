@@ -67,14 +67,6 @@
 
         getCaption : function() {
             return this.get('caption');
-        },
-
-        enable : function() {
-            this.set('disabled', false);
-        },
-
-        disable : function() {
-            this.set('disabled', true);
         }
     });
 
@@ -120,9 +112,9 @@
             this._handleStateChange();
         },
 
-		_handleClickEvent : function() {
-			this.controller._handleClickEvent();
-		},
+        _handleClickEvent : function() {
+            this.controller._handleClickEvent();
+        },
 
         _handleDisabledChange : function() {
             this.$el.toggleClass('disabled', this.model.isDisabled());
@@ -207,37 +199,6 @@
             this.model.setState(value);
 
             return this;
-        },
-
-        /**
-         * Enables button
-         *
-         * @return {Object} Backbone.UI.Button
-         */
-        enable : function() {
-            this.model.enable();
-
-            return this;
-        },
-
-        /**
-         * Disables button
-         *
-         * @return {Object} Backbone.UI.Button
-         */
-        disable : function() {
-            this.model.disable();
-
-            return this;
-        },
-
-        /**
-         * Destroys component
-         */
-        destroy : function() {
-            this.view.destroy();
-            this.view = null;
-            this.model = null;
         }
     });
 }(Backbone, _, jQuery));

@@ -1,0 +1,40 @@
+.checkbox {
+    display:inline-block;
+    position:relative;
+    overflow:hidden;
+    height:16px;
+    line-height: 16px;
+    font-size: 12px;
+    padding-left:14px;
+    cursor: pointer;
+}
+
+*:first-child+html .checkbox {
+    display:inline;
+}
+
+.checkbox .check {
+    border:2px solid #8dc63f;
+    width:6px;
+    height:6px;
+    position:absolute;
+    top:3px;
+    left:0;
+}
+
+.checkbox.checked .check {
+    border:2px solid white;
+    background-color:#8dc63f;
+}
+
+.checkbox.disabled {
+    cursor: default;
+}
+
+.checkbox.disabled .check {
+    border:2px solid #363636;
+}
+
+.checkbox.disabled.checked .check {
+    background-color:#363636;
+}

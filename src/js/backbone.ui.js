@@ -52,15 +52,46 @@
 
     });
 
-	Backbone.UI.ComponentController = Backbone.View.extend({
-		getTemplate : function() {
-			var template = $(this.model.getTemplate()).html();
+    Backbone.UI.ComponentController = Backbone.View.extend({
+        getTemplate : function() {
+            var template = $(this.model.getTemplate()).html();
 
-			if (!template) {
-				throw "Please specify template";
-			}
+            if (!template) {
+                throw "Please specify template";
+            }
 
-			return _.template(template, null, {variable: 'data'});
-		}
-	});
+            return _.template(template, null, {variable: 'data'});
+        },
+
+        /**
+         * Enables component
+         *
+         * @return {Object} Backbone.UI.Component
+         */
+        enable : function() {
+            this.model.enable();
+
+            return this;
+        },
+
+        /**
+         * Disables component
+         *
+         * @return {Object} Backbone.UI.Component
+         */
+        disable : function() {
+            this.model.disable();
+
+            return this;
+        },
+
+        /**
+         * Destroys component
+         */
+        destroy : function() {
+            this.view.destroy();
+            this.view = null;
+            this.model = null;
+        }
+    });
 }(Backbone, _, jQuery));

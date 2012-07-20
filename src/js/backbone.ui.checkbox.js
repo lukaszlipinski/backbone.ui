@@ -1,93 +1,43 @@
 /*globals Backbone, _, jQuery */
 
-/**
- * Extends standard functionality of the link or button elements.
- *
- * @param settings
- *     @param {String} caption     a string which is displayed in the button
- *     @param {Boolean} disabled   determinates if component reacts on user's actions
- *     @param {String} template    determinates template source
- *     @param {Boolean} toggle     when this property is true, 'state' changes
- *				   every time when button is clicked additionaly
- *				   special events are triggered
- *     @param {Boolean} state      determinates the current state of the button.
- *				   As default is 'true' (firing events starts
- *				   with 'event') and doesn't change if the
- *				   'toggle' property is not set to 'true'
- *
- * Triggered events:
- * - btn:click        triggered every time when button is clicked
- * - btn:click:even   triggered only 'even' times (state = true)
- * - btn:click:odd    triggered only 'odd' times (state = false)
- *
- * Css classes:
- * - .btn-caption    determinates position of the caption
- */
-
 (function(Backbone, _, $) {
     "use strict";
 
     /**
      * Model
      */
-    var ButtonModel = Backbone.UI.ComponentModel.extend({
+    var CheckboxModel = Backbone.UI.ComponentModel.extend({
         defaults : {
-            caption : '',
+            caption : 'Default Checkbox',
             disabled : false,
-            template : '#tpl_button',
-            toggle : false,
-            state : true
+            template : '#tpl_checkbox',
+            checked : false
         },
 
-        setState : function(value) {
-            this.set('state', value);
-
-            return this;
+        isChecked : function() {
+            return this.get('checked');
         },
 
-        getState : function() {
-            return this.get('state');
+        getChecked : function() {
+            return this.get('checked');
         },
 
-        toggleState : function() {
-            this.set('state', !this.get('state'));
-
-            return this;
+        setChecked : function(value) {
+            return this.set('checked', value);
         },
 
-        isToggled : function() {
-            return this.get('toggle');
-        },
-
-        setCaption : function(value) {
-            this.set('caption', value);
-
-            return this;
-        },
-
-        getCaption : function() {
-            return this.get('caption');
-        },
-
-        enable : function() {
-            this.set('disabled', false);
-        },
-
-        disable : function() {
-            this.set('disabled', true);
+        toggleChecked : function() {
+            this.set('checked', !this.getChecked());
         }
     });
 
     /**
      * View
      */
-    var ButtonView = Backbone.UI.ComponentView.extend({
-        $caption : null,
-
-		events : {
-			'click.button' : '_handleClickEvent',
-			'touchend.button' : '_handleClickEvent'
-		},
+    var CheckboxView = Backbone.UI.ComponentView.extend({
+        events : {
+            'click.checkbox' : '_handleClickEvent'
+        },
 
         initialize : function() {
             var model = this.model;
@@ -95,45 +45,36 @@
             this.controller = this.options.controller;
 
             model.on('change:disabled', this._handleDisabledChange, this);
-            model.on('change:state', this._handleStateChange, this);
-            model.on('change:caption', this.render, this);
+            model.on('change:checked', this._handleCheckedChange, this);
 
             this.template = this.controller.getTemplate();
-
-            //Prepare elements
-            this.$caption = this.$el.find('.btn-caption');
 
             this.render();
         },
 
         render : function() {
-            var model = this.model, $caption = this.$caption;
+            var model = this.model;
 
-            if ($caption.length) {
-                $caption.html(model.getCaption());
-            }
-            else {
-                this.$el.html(this.template(model.toJSON()));
-            }
+            this.$el.html(this.template(model.toJSON()));
 
             this._handleDisabledChange();
-            this._handleStateChange();
+            this._handleCheckedChange();
         },
 
-		_handleClickEvent : function() {
-			this.controller._handleClickEvent();
-		},
+        _handleClickEvent : function() {
+            this.controller._handleClickEvent();
+        },
 
         _handleDisabledChange : function() {
-            this.$el.toggleClass('disabled', this.model.isDisabled());
+             this.$el.toggleClass('disabled', this.model.isDisabled());
         },
 
-        _handleStateChange : function() {
-            this.$el.toggleClass("active", this.model.getState());
+        _handleCheckedChange : function() {
+             this.$el.toggleClass('checked', this.model.isChecked());
         },
 
         destroy : function() {
-            this.$el.off('.button');
+            this.$el.off('.checkbox');
             this.model.off(null, null, this);
             this.controller.off(null, null, this);
         }
@@ -142,15 +83,15 @@
     /**
      * Controller
      */
-    Backbone.UI.Button = Backbone.UI.ComponentController.extend({
+    Backbone.UI.Checkbox = Backbone.UI.ComponentController.extend({
         initialize : function() {
             var settings = this.options.settings;
 
             //Model
-            this.model = new ButtonModel(settings);
+            this.model = new CheckboxModel(settings);
 
             //View
-            this.view = new ButtonView({
+            this.view = new CheckboxView({
                 el : this.$el,
                 model : this.model,
                 controller : this
@@ -164,80 +105,40 @@
                 return;
             }
 
-            //Thigger common event
-            this.trigger('btn:click', this);
-
-            if (model.isToggled()) {
-                this.trigger("btn:click:" + (model.getState() ? "even" : "odd"), this);
-
-                model.toggleState();
-            }
+            this.model.toggleChecked();
         },
 
         /**
-         * Sets new caption to the button
-         *
-         * @param {String}   new caption string
-         *
-         * @return {Object} Backbone.UI.Button
-         */
-        setCaption : function(value) {
-            this.model.setCaption(value);
-
-            return this;
-        },
-
-        /**
-         * Returns current state of the button
+         * Returns information whether checkbox is checked or not
          *
          * @return {Boolean}
          */
-        getState : function() {
-            return this.model.getState();
+        getChecked : function() {
+            return this.model.getChecked();
         },
 
         /**
-         * Sets button's state
+         * Checks or unchecks checkbox
          *
-         * @param {Boolean} value    new state
+         * @param {Boolean} value
          *
-         * @return {Object} Backbone.UI.Button
+         * @return {Object} Backbone.UI.Checkbox
          */
-        setState : function(value) {
-            this.model.setState(value);
+        setChecked : function(value) {
+            this.model.setChecked(value);
 
             return this;
         },
 
         /**
-         * Enables button
+         * Toggle check
          *
          * @return {Object} Backbone.UI.Button
          */
-        enable : function() {
-            this.model.enable();
+        toggleChecked : function() {
+            this.model.toggleChecked();
 
             return this;
-        },
-
-        /**
-         * Disables button
-         *
-         * @return {Object} Backbone.UI.Button
-         */
-        disable : function() {
-            this.model.disable();
-
-            return this;
-        },
-
-        /**
-         * Destroys component
-         */
-        destroy : function() {
-            this.view.destroy();
-            this.view = null;
-            this.model = null;
         }
     });
 }(Backbone, _, jQuery));
