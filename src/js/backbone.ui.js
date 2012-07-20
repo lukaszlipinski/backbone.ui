@@ -24,8 +24,8 @@
         },
 
         getTemplate : function() {
-			return this.get('template');
-		},
+            return this.get('template');
+        },
 
         enable : function() {
             this.set('disabled', false);
@@ -34,8 +34,8 @@
         },
 
         isEnabled : function() {
-			return !this.get('disabled');
-		},
+            return !this.get('disabled');
+        },
 
         disable : function() {
             this.set('disabled', true);
@@ -44,8 +44,8 @@
         },
 
         isDisabled : function() {
-			return this.get('disabled');
-		}
+            return this.get('disabled');
+        }
     });
 
     Backbone.UI.ComponentView = Backbone.View.extend({
