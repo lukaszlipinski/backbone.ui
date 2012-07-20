@@ -1,5 +1,18 @@
 /*globals Backbone, _, jQuery */
 
+/**
+ * Extends standard functionality of input[type='check']
+ *
+ * @param settings
+ *     @param {String} caption     derteminates checkbox caption
+ *     @param {Boolean} disabled   determinates if component reacts on user's actions or not
+ *     @param {String} template    determinates template source
+ *     @param {Boolean} checked    determinates if checkbox is checked or not
+ *
+ * Triggered events:
+ * - cbx:change:checked    fired when 'checked' state is changed
+ */
+
 (function(Backbone, _, $) {
     "use strict";
 
@@ -71,6 +84,8 @@
 
         _handleCheckedChange : function() {
              this.$el.toggleClass('checked', this.model.isChecked());
+
+             this.controller._handleCheckedChange();
         },
 
         destroy : function() {
@@ -106,6 +121,10 @@
             }
 
             this.model.toggleChecked();
+        },
+
+        _handleCheckedChange : function() {
+            this.trigger('cbx:change:checked', this, this.model.getChecked());
         },
 
         /**

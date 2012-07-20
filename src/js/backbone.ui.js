@@ -6,9 +6,9 @@
     var tabindex = 0;
 
     Backbone.UI = Backbone.UI || {
-		getNextTabIndex : function() {
-			return ++tabindex;
-		}
+        getNextTabIndex : function() {
+            return ++tabindex;
+        }
     };
 
     Backbone.UI.KEYS = {

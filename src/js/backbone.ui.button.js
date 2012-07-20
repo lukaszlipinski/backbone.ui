@@ -76,10 +76,10 @@
     var ButtonView = Backbone.UI.ComponentView.extend({
         $caption : null,
 
-		events : {
-			'click.button' : '_handleClickEvent',
-			'touchend.button' : '_handleClickEvent'
-		},
+        events : {
+            'click.button' : '_handleClickEvent',
+            'touchend.button' : '_handleClickEvent'
+        },
 
         initialize : function() {
             var model = this.model;
