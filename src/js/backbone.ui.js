@@ -49,7 +49,11 @@
     });
 
     Backbone.UI.ComponentView = Backbone.View.extend({
-
+        destroy : function() {
+            this.$el.off(this.className);
+            this.model.off(null, null, this);
+            this.controller.off(null, null, this);
+        }
     });
 
     Backbone.UI.ComponentController = Backbone.View.extend({

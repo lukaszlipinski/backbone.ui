@@ -74,6 +74,7 @@
      * View
      */
     var ButtonView = Backbone.UI.ComponentView.extend({
+        className : '.button',
         $caption : null,
 
         events : {
@@ -88,7 +89,7 @@
 
             model.on('change:disabled', this._handleDisabledChange, this);
             model.on('change:state', this._handleStateChange, this);
-            model.on('change:caption', this.render, this);
+            model.on('change:caption', this._handleCaptionChange, this);
 
             this.template = this.controller.getTemplate();
 
@@ -99,6 +100,12 @@
         },
 
         render : function() {
+            this._handleCaptionChange();
+            this._handleDisabledChange();
+            this._handleStateChange();
+        },
+
+        _handleCaptionChange : function() {
             var model = this.model, $caption = this.$caption;
 
             if ($caption.length) {
@@ -107,9 +114,6 @@
             else {
                 this.$el.html(this.template(model.toJSON()));
             }
-
-            this._handleDisabledChange();
-            this._handleStateChange();
         },
 
         _handleClickEvent : function() {
@@ -122,12 +126,6 @@
 
         _handleStateChange : function() {
             this.$el.toggleClass("active", this.model.getState());
-        },
-
-        destroy : function() {
-            this.$el.off('.button');
-            this.model.off(null, null, this);
-            this.controller.off(null, null, this);
         }
     });
 

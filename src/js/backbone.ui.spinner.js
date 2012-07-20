@@ -177,6 +177,8 @@
     });
 
     var SpinnerView = Backbone.UI.ComponentView.extend({
+        className : '.spinner',
+
         $input : null,
 
         events : {
@@ -260,11 +262,6 @@
             else {
                 this.$input.removeAttr('disabled');
             }
-        },
-
-        destroy : function() {
-            this.$el.off('.spinner');
-            this.model.off(null, null, this);
         }
     });
 
