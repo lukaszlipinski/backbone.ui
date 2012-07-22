@@ -48,7 +48,7 @@
      * View
      */
     var CheckboxView = Backbone.UI.ComponentView.extend({
-        className : '.checkbox',
+        componentClassName : '.checkbox',
 
         events : {
             'click.checkbox' : '_handleClickEvent'
@@ -62,7 +62,7 @@
             model.on('change:disabled', this._handleDisabledChange, this);
             model.on('change:checked', this._handleCheckedChange, this);
 
-            this.template = this.controller.getTemplate();
+            this.template = this.getTemplate();
 
             this.render();
         },

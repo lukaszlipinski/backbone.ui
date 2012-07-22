@@ -3,11 +3,16 @@
 (function(Backbone, _, $) {
     "use strict";
 
-    var tabindex = 0;
+    var tabindex = 0,
+        listindex = 0;
 
     Backbone.UI = Backbone.UI || {
         getNextTabIndex : function() {
             return ++tabindex;
+        },
+
+        getNextListIndex : function() {
+            return ++listindex;
         }
     };
 
@@ -49,24 +54,28 @@
     });
 
     Backbone.UI.ComponentView = Backbone.View.extend({
-        destroy : function() {
-            this.$el.off(this.className);
+        getTemplate : function(template) {
+            var tmpl = $(template || this.model.getTemplate()).html();
+
+            if (!tmpl) {
+                throw "Please specify template";
+            }
+
+            return _.template(tmpl, null, {variable: 'data'});
+        },
+
+        _destroy : function() {
+            this.$el.off(this.componentClassName);
             this.model.off(null, null, this);
             this.controller.off(null, null, this);
+
+            if (typeof this.destroy === 'function') {
+                this.destroy();
+            }
         }
     });
 
     Backbone.UI.ComponentController = Backbone.View.extend({
-        getTemplate : function() {
-            var template = $(this.model.getTemplate()).html();
-
-            if (!template) {
-                throw "Please specify template";
-            }
-
-            return _.template(template, null, {variable: 'data'});
-        },
-
         /**
          * Enables component
          *
@@ -93,7 +102,7 @@
          * Destroys component
          */
         destroy : function() {
-            this.view.destroy();
+            this.view._destroy();
             this.view = null;
             this.model = null;
         }

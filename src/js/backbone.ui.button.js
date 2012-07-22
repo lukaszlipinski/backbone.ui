@@ -74,7 +74,7 @@
      * View
      */
     var ButtonView = Backbone.UI.ComponentView.extend({
-        className : '.button',
+        componentClassName : '.button',
         $caption : null,
 
         events : {
@@ -91,7 +91,7 @@
             model.on('change:state', this._handleStateChange, this);
             model.on('change:caption', this._handleCaptionChange, this);
 
-            this.template = this.controller.getTemplate();
+            this.template = this.getTemplate();
 
             //Prepare elements
             this.$caption = this.$el.find('.btn-caption');

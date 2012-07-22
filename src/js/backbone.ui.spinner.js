@@ -177,7 +177,7 @@
     });
 
     var SpinnerView = Backbone.UI.ComponentView.extend({
-        className : '.spinner',
+        componentClassName : '.spinner',
 
         $input : null,
 
@@ -199,7 +199,7 @@
             model.on('change:min', this._handleMinChange, this);
             model.on('sp:revert:value', this._handleRevertChange, this);
 
-            this.template = $(model.getTemplate()).html();
+            this.template = this.getTemplate();
 
             this.render();
         },

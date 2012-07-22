@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>Backbone.UI - Dropdown</title>
 
-        <link rel="stylesheet" href="../src/css/button.css" media="screen, projection" />
+        <link rel="stylesheet" href="../src/css/dropdown.css" media="screen, projection" />
 
         <script src="../assets/js/jquery-1.7.2.min.js"></script>
         <script src="../assets/js/underscore-1.3.3.min.js"></script>
@@ -14,9 +14,23 @@
         <script src="../src/js/backbone.ui.dropdown.js"></script>
 
         <script type="text/template" id="tpl_dropdown">
-            <!--div class="dropdown" -->
-                <%= data.caption %>
+            <!--div class="dropdown dd-caption" -->
+                <div class="caption dd-caption"><%= data.caption %></div>
             <!--/div-->
+        </script>
+
+        <script type="text/template" id="tpl_dropdown_list">
+            <div class="dropdown-list">
+                <% var option, options = data.options, i, l = options.length, cssClass;
+
+                for (i = 0; i < l; i++) {
+                    option = options[i];
+                    cssClass = (option.disabled ? ' disabled' : '') + (data.value == option.value ? ' selected' : '');
+                    %>
+                    <div class="option<%= cssClass %>"><%= option.name %></div>
+                <% }
+                %>
+            </div>
         </script>
     </head>
     <body>
