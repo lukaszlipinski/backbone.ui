@@ -13,7 +13,7 @@
                 {name : 'Option 3', value : 2}
             ],
             exclusions : [2],
-            openOnHover : false
+            openOnHover : true
         }
     });
 }(Backbone, _, jQuery));

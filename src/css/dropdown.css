@@ -13,6 +13,7 @@
     font-size:12px;
     vertical-align: middle;
     height:17px;
+    padding:5px;
 }
 
 *:first-child+html .dropdown {
@@ -34,6 +35,10 @@
     position:absolute;
     top:100px;
     left:10px;
+    background-color:#8dc63f;
+    color:white;
+    font-size:12px;
+    cursor:pointer;
 }
 
 *:first-child+html .dropdown-list {
@@ -42,4 +47,23 @@
 
 .dropdown-list.opened {
     display:block;
+}
+
+.dropdown-list .option {
+    padding:3px;
+    border-bottom:1px solid white;
+}
+
+.dropdown-list .option:hover {
+    background-color:#96d246;
+}
+
+.dropdown-list .option.disabled {
+    background-color: #363636;
+    color:#898989;
+    cursor:default;
+}
+
+.dd-close-list-layer {
+    
 }

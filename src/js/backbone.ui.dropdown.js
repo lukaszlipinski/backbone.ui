@@ -11,7 +11,7 @@
             opened : false,
             value : '',
             openOnClick : true,
-            openOnHover : false,
+            openOnHover : true,
             template : '#tpl_dropdown',
             listPosition : 'right',
             disabled : false,
@@ -60,8 +60,27 @@
             return this.get('value');
         },
 
+        setValue : function(value) {
+            this.set('value', value);
+        },
+
         getOptions : function() {
-            return this.get('options');
+            var options = this.get('options').slice(0), i, l = options.length,
+                exclusions = this.get('exclusions'), j, l2 = exclusions.length,
+                extendedOptions = [];
+
+            //Go trough all options and check which one are disabled
+            for (i = 0; i < l; i++) {
+                extendedOptions[i] = options[i];
+
+                for (j = 0; j < l2; j++) {
+                    if (extendedOptions[i].value === exclusions[j]) {
+                        extendedOptions[i].disabled = true;
+                    }
+                }
+            }
+
+            return extendedOptions;
         },
 
         getCaption : function() {
@@ -90,7 +109,7 @@
                 i, l = exclusions.length;
 
             for (i = 0; i < l; i++) {
-                if (exclusions[i] === value) {
+                if (exclusions[i] == value) {
                     return true;
                 }
             }
@@ -108,12 +127,15 @@
         listindex : Backbone.UI.getNextListIndex(),
         //width of the list directly after initialization
         initialWidth : 0,
+        //previous z-index set to the dropdown
+        previousZIndex : null,
 
         $closeListLayer : null,
 
+
         events : {
-            //'click.dropdown-list .option' : '_handleClickEvent',
-            //'mouseout.dropdown-list' : '_handleMouseOutEvent'
+            'click.dropdown-list .dd-option' : '_handleListOptionClickEvent',
+            'mouseout.dropdown-list' : '_handleListMouseOutEvent'
         },
 
         initialize : function() {
@@ -122,23 +144,30 @@
 
             this.template = this.getTemplate(this.model.getListTemplate());
 
-            this.$el = $(this.template(this.model.toJSON()))
-                    .appendTo('body')
-                    .attr("id", "dd_list_" + this.listindex);
+            this.$el = $(this.template({
+                options : this.model.getOptions()
+            })).appendTo('body')
+               .attr("id", "dd_list_" + this.listindex);
 
-            this.initialWidth = this.$el.outerWidth(true);
+            this.initialWidth = this.$el.outerWidth();
+
+            this.model.on('change:opened', this._handleOpenedChange, this);
+        },
+
+        _handleOpenedChange : function() {
+            this[this.model.isOpened() ? 'open' : 'close']();
         },
 
         render : function() {
             this.$el.html(this.template(this.model.toJSON()));
         },
 
-        show : function() {
+        open : function() {
             var model = this.model,
                 $el = this.$el, $parent = this.$parent;
 
-            var listTotalWidth = $el.outerWidth(true), listWidth = $el.width(),
-                width = $parent.outerWidth(true), height = $parent.outerHeight(true),
+            var listTotalWidth = $el.outerWidth(), listWidth = $el.width(),
+                width = $parent.outerWidth(), height = $parent.outerHeight(),
                 listPosition = model.getListPosition(), offset = $parent.offset(),
                 modTop = height - 1, modLeft = 0,
                 newTotalWidth = Math.max(width, this.initialWidth);
@@ -158,7 +187,8 @@
             $el.css({
                 top : offset.top + modTop,
                 left : offset.left + modLeft,
-                marginLeft : 0
+                marginLeft : 0,
+                zIndex : 19001
             });
 
             if (listTotalWidth !== newTotalWidth) {
@@ -171,30 +201,25 @@
             $el.addClass('opened');
         },
 
-        hide : function() {
+        close : function() {
             this.$parent.removeClass('opened');
             this.$el.removeClass('opened');
 
             this.destroyCloseListLayer();
         },
 
-        /*_handleClickEvent : function() {
+        _handleListOptionClickEvent : function(e) {
             var $target = $(e.currentTarget),
-                value = $target.attr("name");
+                value = $target.attr('dd-data');
 
-            if (!isExcluded(value)) {
-                _self.setValue(value);
-                _self.hide();
-            }
+            this.controller._handleListOptionClickEvent(value);
         },
 
-        _handleMouseOutEvent : function(e) {
+        _handleListMouseOutEvent : function(e) {
             var $target = $(e.relatedTarget);
 
-            if (settings.hover && !$list.find($target).length) {
-                    _self.hide();
-            }
-        },*/
+            this.controller._handleListMouseOutEvent(this.$el, $target);
+        },
 
         /**
          * Creates layer which is used to close dropdown when user will click
@@ -206,9 +231,14 @@
                     position : 'absolute', top : 0, left : 0, right : 0, bottom : 0, zIndex : 19000
                 };
 
-            this.$closeListLayer = $('<div class="close_list_layer ' + this.model.getClassName() + '" />').appendTo('body').css(attr).one("click", function() {
+            this.$closeListLayer = $('<div class="dd-close-list-layer ' + this.model.getClassName() + '" />').appendTo('body').css(attr).one("click", function() {
                 _self.controller._handleCloseListLayerClickEvent();
             });
+
+            //Save previous z-index
+            this.previousZIndex = this.$parent.css('zIndex');
+            //and set temporary one
+            this.$parent.css('zIndex', 20000);
         },
 
         /**
@@ -221,6 +251,8 @@
             if ($closeListLayer) {
                 $closeListLayer.off().remove();
                 this.$closeListLayer = null;
+                //Restore z-index
+                this.$parent.css('zIndex', this.previousZIndex);
             }
         },
 
@@ -255,13 +287,13 @@
                 controller : this.controller
             });
 
-            model.on('change:opened', this._handleOpenedChange, this);
+            model.on('change:value', this._handleValueChange, this);
 
             this.render();
         },
 
-        _handleOpenedChange : function(model) {
-            this.listView[model.isOpened() ? 'show' : 'hide']();
+        _handleValueChange : function() {
+            this.render();
         },
 
         render : function() {
@@ -327,14 +359,30 @@
         _handleMouseOutEvent : function($target, $el, $list) {
             var model = this.model;
 
-            if (!model.isDisabled() && model.openOnHover() && !$target.hasClass('close_list_layer')
-                && $target !== $list && !$list.find($target).length && $target !== $el && !$el.find($target).length) {
+            if (!model.isDisabled() && model.openOnHover() && $target !== $list && !$list.find($target).length && $target !== $el && !$el.find($target).length) {
                 model.close();
             }
         },
 
         _handleCloseListLayerClickEvent : function() {
             this.model.close();
+        },
+
+        _handleListOptionClickEvent : function(value) {
+            var model = this.model;
+
+            if (!model.isExcluded(value)) {
+                model.setValue(value);
+                model.close();
+            }
+        },
+
+        _handleListMouseOutEvent : function($list, $target) {
+            var model = this.model;
+
+            if (model.openOnHover() && !$list.find($target).length) {
+                model.close();
+            }
         }
     });
 }(Backbone, _, jQuery));

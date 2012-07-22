@@ -27,14 +27,14 @@
                     option = options[i];
                     cssClass = (option.disabled ? ' disabled' : '') + (data.value == option.value ? ' selected' : '');
                     %>
-                    <div class="option<%= cssClass %>"><%= option.name %></div>
+                    <div class="dd-option option<%= cssClass %>" dd-data="<%= option.value %>"><%= option.name %></div>
                 <% }
                 %>
             </div>
         </script>
     </head>
     <body>
-        <div class="dd_example dropdown"></div>
+        <div class="dd_example dropdown" style="margin:20px 0 0 20px;"></div>
 
         <script src="dropdown.js"></script>
     </body>
