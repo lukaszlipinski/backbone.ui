@@ -129,9 +129,8 @@
         initialWidth : 0,
         //previous z-index set to the dropdown
         previousZIndex : null,
-
+        //a layer which covers entire screen when dropdown list is opened
         $closeListLayer : null,
-
 
         events : {
             'click.dropdown-list .dd-option' : '_handleListOptionClickEvent',
@@ -152,10 +151,6 @@
             this.initialWidth = this.$el.outerWidth();
 
             this.model.on('change:opened', this._handleOpenedChange, this);
-        },
-
-        _handleOpenedChange : function() {
-            this[this.model.isOpened() ? 'open' : 'close']();
         },
 
         render : function() {
@@ -208,19 +203,6 @@
             this.destroyCloseListLayer();
         },
 
-        _handleListOptionClickEvent : function(e) {
-            var $target = $(e.currentTarget),
-                value = $target.attr('dd-data');
-
-            this.controller._handleListOptionClickEvent(value);
-        },
-
-        _handleListMouseOutEvent : function(e) {
-            var $target = $(e.relatedTarget);
-
-            this.controller._handleListMouseOutEvent(this.$el, $target);
-        },
-
         /**
          * Creates layer which is used to close dropdown when user will click
          * somewhere in the window
@@ -254,6 +236,23 @@
                 //Restore z-index
                 this.$parent.css('zIndex', this.previousZIndex);
             }
+        },
+
+        _handleOpenedChange : function() {
+            this[this.model.isOpened() ? 'open' : 'close']();
+        },
+
+        _handleListOptionClickEvent : function(e) {
+            var $target = $(e.currentTarget),
+                value = $target.attr('dd-data');
+
+            this.controller._handleListOptionClickEvent(value);
+        },
+
+        _handleListMouseOutEvent : function(e) {
+            var $target = $(e.relatedTarget);
+
+            this.controller._handleListMouseOutEvent(this.$el, $target);
         },
 
         destroy : function() {
@@ -292,14 +291,14 @@
             this.render();
         },
 
-        _handleValueChange : function() {
-            this.render();
-        },
-
         render : function() {
             this.$el.html(this.template({
                 caption : this.model.getCaption()
             }));
+        },
+
+        _handleValueChange : function() {
+            this.render();
         },
 
         _handleClickEvent : function(e) {
