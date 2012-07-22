@@ -205,7 +205,8 @@
         },
 
         render : function() {
-            this.$el.html(_.template(this.template, this.model.toJSON(), {variable : 'data'}));
+            this.$el.html(this.template(this.model.toJSON()));
+
             this.$input = this.$el.find('.sp-input');
 
             if (!this.$input.is('input')) {
