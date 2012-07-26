@@ -15,19 +15,19 @@
 
         <script type="text/template" id="tpl_dropdown">
             <!--div class="dropdown dd-caption" -->
-                <div class="caption dd-caption"><%= data.caption %></div>
+                <div class="caption dd-caption"><%= data.name + ' test ' +data.something %></div>
             <!--/div-->
         </script>
 
         <script type="text/template" id="tpl_dropdown_list">
             <div class="dropdown-list">
                 <% var option, options = data.options, i, l = options.length, cssClass;
-
+console.log(data);
                 for (i = 0; i < l; i++) {
                     option = options[i];
                     cssClass = (option.disabled ? ' disabled' : '') + (data.value == option.value ? ' selected' : '');
                     %>
-                    <div class="dd-option option<%= cssClass %>" dd-data="<%= option.value %>"><%= option.name %></div>
+                    <div class="dd-option option<%= cssClass %>" dd-data="<%= option.value %>"><%= option.name +' '+option.value %></div>
                 <% }
                 %>
             </div>
@@ -35,6 +35,8 @@
     </head>
     <body>
         <div class="dd_example dropdown" style="margin:20px 0 0 20px;"></div>
+
+        <div class="dd_example2 dropdown" style="margin:120px 0 0 120px;"></div>
 
         <script src="dropdown.js"></script>
     </body>

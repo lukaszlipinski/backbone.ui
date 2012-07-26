@@ -58,6 +58,10 @@
     background-color:#96d246;
 }
 
+.dropdown-list .option.selected {
+    background-color:red;
+}
+
 .dropdown-list .option.disabled {
     background-color: #363636;
     color:#898989;
@@ -65,5 +69,5 @@
 }
 
 .dd-close-list-layer {
-    
+
 }

@@ -24,46 +24,95 @@
             exclusions : []
         },
 
+        /**
+         * Opens dropdown list
+         */
         open : function() {
             this.set('opened', true);
         },
 
+        /**
+         * Closes dropdown list
+         */
         close : function() {
             this.set('opened', false);
         },
 
+        /**
+         * Opens of closes dropdown list depends on the previous state
+         */
         toggleOpened : function() {
             this.set('opened', !this.isOpened());
         },
 
+        /**
+         * Returns information whether the list is currently opened or closed
+         *
+         * @return {Boolean}
+         */
         isOpened : function() {
             return this.get('opened');
         },
 
+        /**
+         * Determinates whether dropdown list should be opened on click or not
+         *
+         * @return {Boolean}
+         */
         openOnClick : function() {
             return this.get('openOnClick');
         },
 
+        /**
+         * Determinates whether dropdown list should be opened on hover or not
+         *
+         * @return {Boolean}
+         */
         openOnHover : function() {
             return this.get('openOnHover');
         },
 
+        /**
+         * Determinates dropdown list position related to the main container
+         *
+         * @return {String}   @see listPosition
+         */
         getListPosition : function() {
             return this.get('listPosition');
         },
 
+        /**
+         * Returns dropdown list template
+         *
+         * @return {String}
+         */
         getListTemplate : function() {
             return this.get('listTemplate');
         },
 
+        /**
+         * Returns value of dropdown
+         *
+         * @return {Number|String}
+         */
         getValue : function() {
             return this.get('value');
         },
 
-        setValue : function(value) {
-            this.set('value', value);
+        /**
+         * Sets value of dropdown
+         */
+        setValue : function(value, props) {
+            props = props || {};
+
+            this.set('value', value, {silent : props.silent});
         },
 
+        /**
+         * Returns options array, additionaly checks which options are excluded
+         *
+         * @return {Object}   an array with options
+         */
         getOptions : function() {
             var options = this.get('options').slice(0), i, l = options.length,
                 exclusions = this.get('exclusions'), j, l2 = exclusions.length,
@@ -83,15 +132,47 @@
             return extendedOptions;
         },
 
-        getCaption : function() {
-            var value = this.getValue(),
-                result = _.find(this.getOptions(), function(option) {
-                return option.value == value;
-            });
+        /**
+         * Sets new options for dropdown
+         *
+         * @param {Object} value   an array with options
+         */
+        setOptions : function(value, props) {
+            props = props || {};
 
-            return result ? result.name : '';
+            this.set({options : value}, {silent : props.silent});
         },
 
+        /**
+         * Returns currently selected option
+         *
+         * @return {Object}
+         */
+        getSelectedOption : function() {
+            var value = this.getValue(),
+                result = _.find(this.getOptions(), function(option) {
+                    return option.value == value;
+                });
+
+            return result;
+        },
+
+        /**
+         * Sets exclusions for the dropdown
+         *
+         * @param {Object} value   an array with values of excluded options
+         */
+        setExclusions : function(value, props) {
+            props = props || {};
+
+            this.set('exclusions', value, {silent : props.silent});
+        },
+
+        /**
+         * Returns class name which should be unique
+         *
+         * @return {String}
+         */
         getClassName : function() {
             return this.get('className');
         },
@@ -124,7 +205,7 @@
     var DropdownListView = Backbone.UI.ComponentView.extend({
         componentClassName : '.dropdown-list',
         //unique id for each list
-        listindex : Backbone.UI.getNextListIndex(),
+        listindex : 0,
         //width of the list directly after initialization
         initialWidth : 0,
         //previous z-index set to the dropdown
@@ -138,23 +219,36 @@
         },
 
         initialize : function() {
+            var model = this.model;
+
+            this.listindex = Backbone.UI.getNextListIndex();
+
             this.$parent = this.options.$parent;
             this.controller = this.options.controller;
 
             this.template = this.getTemplate(this.model.getListTemplate());
 
             this.$el = $(this.template({
-                options : this.model.getOptions()
+                value : model.getValue(),
+                options : model.getOptions()
             })).appendTo('body')
                .attr("id", "dd_list_" + this.listindex);
 
             this.initialWidth = this.$el.outerWidth();
 
-            this.model.on('change:opened', this._handleOpenedChange, this);
+            model.on('change:value', this._handleValueChange, this);
+            model.on('change:opened', this._handleOpenedChange, this);
+            model.on('change:options', this._handleOptionsChange, this);
+            model.on('change:exclusions', this._handleExclusionsChange, this);
         },
 
         render : function() {
-            this.$el.html(this.template(this.model.toJSON()));
+            var model = this.model;
+
+            this.$el.html($(this.template({
+                value : model.getValue(),
+                options : model.getOptions()
+            })).children());
         },
 
         open : function() {
@@ -242,6 +336,26 @@
             this[this.model.isOpened() ? 'open' : 'close']();
         },
 
+        _handleValueChange : function() {
+            this.render();
+        },
+
+        _handleOptionsChange : function() {
+            if (this.model.changed.value) {
+                return;
+            }
+
+            this.render();
+        },
+
+        _handleExclusionsChange : function() {
+            if (this.model.changed.value) {
+                return;
+            }
+
+            this.render();
+        },
+
         _handleListOptionClickEvent : function(e) {
             var $target = $(e.currentTarget),
                 value = $target.attr('dd-data');
@@ -265,8 +379,6 @@
 
     var DropdownView = Backbone.UI.ComponentView.extend({
         componentClassName : '.dropdown',
-
-        $closeListLayer : null,
 
         events : {
             'click.dropdown' : '_handleClickEvent',
@@ -292,9 +404,7 @@
         },
 
         render : function() {
-            this.$el.html(this.template({
-                caption : this.model.getCaption()
-            }));
+            this.$el.html(this.template(this.model.getSelectedOption()));
         },
 
         _handleValueChange : function() {
@@ -337,6 +447,13 @@
                 model : this.model,
                 controller : this
             });
+
+            //Events
+            this.model.on('change:value', this._handleValueChange, this);
+        },
+
+        _handleValueChange : function() {
+            this.trigger('dd:change:value', this.model.getValue());
         },
 
         _handleClickEvent : function() {
@@ -382,6 +499,86 @@
             if (model.openOnHover() && !$list.find($target).length) {
                 model.close();
             }
+        },
+
+        /**
+         * Public Methods
+         */
+
+        /**
+         * Opens dropdown list
+         */
+        open : function() {
+            this.model.open();
+
+            return this;
+        },
+
+        /**
+         * Closes dropdown list
+         */
+        close : function() {
+            this.model.close();
+
+            return this;
+        },
+
+        /**
+         * Opens of closes dropdown list depends on the previous state
+         */
+        toggleOpen : function() {
+            this.model.toggleOpened();
+
+            return this;
+        },
+
+        /**
+         * Returns information whether the list is currently opened or closed
+         *
+         * @return {Boolean}
+         */
+        isOpened : function() {
+            return this.model.isOpened();
+        },
+
+        /**
+         * Returns value of dropdown
+         *
+         * @return {Number|String}
+         */
+        getValue : function() {
+            return this.model.getValue();
+        },
+
+        /**
+         * Sets value of dropdown
+         */
+        setValue : function(value, props) {
+            this.model.setValue(value, props);
+
+            return this;
+        },
+
+        /**
+         * Sets new options for dropdown
+         *
+         * @param {Object} value   an array with options
+         */
+        setOptions : function(value, props) {
+            this.model.setOptions(value, props);
+
+            return this;
+        },
+
+        /**
+         * Sets exclusions for the dropdown
+         *
+         * @param {Object} value   an array with values of excluded options
+         */
+        setExclusions : function(value, props) {
+             this.model.setExclusions(value, props);
+
+            return this;
         }
     });
 }(Backbone, _, jQuery));
