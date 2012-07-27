@@ -1,0 +1,25 @@
+.label {
+    display:inline-block;
+    position:relative;
+    overflow:hidden;
+    padding:5px 12px;
+    vertical-align: middle;
+    font-family:Tahoma;
+    font-size:12px;
+    vertical-align: middle;
+    height:17px;
+}
+
+*:first-child+html .label {
+    display:inline;
+}
+
+.label.disabled {
+    color:#898989;
+	cursor:default;
+	 -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

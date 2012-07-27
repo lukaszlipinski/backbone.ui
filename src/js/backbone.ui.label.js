@@ -30,33 +30,11 @@
 	/**
 	 * Model
 	 */
-	var ButtonModel = Backbone.UI.ComponentModel.extend({
+	var LabelModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
-			caption : '',
+			caption : 'Default caption',
 			disabled : false,
-			template : '#tpl_button',
-			toggle : false,
-			state : true
-		},
-
-		setState : function(value) {
-			this.set('state', value);
-
-			return this;
-		},
-
-		getState : function() {
-			return this.get('state');
-		},
-
-		toggleState : function() {
-			this.set('state', !this.get('state'));
-
-			return this;
-		},
-
-		isToggled : function() {
-			return this.get('toggle');
+			template : '#tpl_label'
 		},
 
 		setCaption : function(value) {
@@ -73,95 +51,54 @@
 	/**
 	 * View
 	 */
-	var ButtonView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.button',
-		$caption : null,
-
-		events : {
-			'click.button' : '_handleClickEvent',
-			'touchend.button' : '_handleClickEvent'
-		},
+	var LabelView = Backbone.UI.ComponentView.extend({
+		componentClassName : '.label',
 
 		initialize : function() {
 			var model = this.model;
 
 			this.controller = this.options.controller;
-
-			model.on('change:disabled', this._handleDisabledChange, this);
-			model.on('change:state', this._handleStateChange, this);
-			model.on('change:caption', this._handleCaptionChange, this);
-
 			this.template = this.getTemplate();
 
-			//Prepare elements
-			this.$caption = this.$el.find('.btn-caption');
+			model.on('change:caption', this._handleCaptionChange, this);
+			model.on('change:disabled', this._handleDisabledChange, this);
 
 			this.render();
 		},
 
 		render : function() {
-			this._handleCaptionChange();
+			this.$el.html(this.template({
+				caption : this.model.getCaption()
+			}));
+
 			this._handleDisabledChange();
-			this._handleStateChange();
 		},
 
 		_handleCaptionChange : function() {
-			var model = this.model, $caption = this.$caption;
-
-			if ($caption.length) {
-				$caption.html(model.getCaption());
-			}
-			else {
-				this.$el.html(this.template(model.toJSON()));
-			}
-		},
-
-		_handleClickEvent : function() {
-			this.controller._handleClickEvent();
+			this.render();
 		},
 
 		_handleDisabledChange : function() {
 			this.$el.toggleClass('disabled', this.model.isDisabled());
-		},
-
-		_handleStateChange : function() {
-			this.$el.toggleClass("active", this.model.getState());
 		}
 	});
 
 	/**
 	 * Controller
 	 */
-	Backbone.UI.Button = Backbone.UI.ComponentController.extend({
+	Backbone.UI.Label = Backbone.UI.ComponentController.extend({
 		initialize : function() {
 			var settings = this.options.settings;
 
 			//Model
-			this.model = new ButtonModel(settings);
+			this.model = new LabelModel(settings);
 
 			//View
-			this.view = new ButtonView({
+			this.view = new LabelView({
 				el : this.$el,
 				model : this.model,
 				controller : this
 			});
-		},
-
-		_handleClickEvent : function() {
-			var model = this.model;
-
-			if (model.isDisabled()) {
-				return;
-			}
-
-			//Thigger common event
-			this.trigger('btn:click', this);
-
-			if (model.isToggled()) {
-				this.trigger("btn:click:" + (model.getState() ? "even" : "odd"), this);
-
-				model.toggleState();
-			}
 		},
 
 		/**
@@ -169,36 +106,14 @@
 		 */
 
 		/**
-		 * Sets new caption to the button
+		 * Sets new caption to label
 		 *
 		 * @param {String}   new caption string
 		 *
-		 * @return {Object} Backbone.UI.Button
+		 * @return {Object} Backbone.UI.Label
 		 */
 		setCaption : function(value) {
 			this.model.setCaption(value);
-
-			return this;
-		},
-
-		/**
-		 * Returns current state of the button
-		 *
-		 * @return {Boolean}
-		 */
-		getState : function() {
-			return this.model.getState();
-		},
-
-		/**
-		 * Sets button's state
-		 *
-		 * @param {Boolean} value    new state
-		 *
-		 * @return {Object} Backbone.UI.Button
-		 */
-		setState : function(value) {
-			this.model.setState(value);
 
 			return this;
 		}

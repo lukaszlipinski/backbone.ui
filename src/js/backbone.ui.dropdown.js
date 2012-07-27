@@ -506,6 +506,8 @@
 
 		/**
 		 * Opens dropdown list
+		 *
+		 * @return {Object} Backbone.UI.Dropdown
 		 */
 		open : function() {
 			this.model.open();
@@ -515,6 +517,8 @@
 
 		/**
 		 * Closes dropdown list
+		 *
+		 * @return {Object} Backbone.UI.Dropdown
 		 */
 		close : function() {
 			this.model.close();
@@ -524,6 +528,8 @@
 
 		/**
 		 * Opens of closes dropdown list depends on the previous state
+		 *
+		 * @return {Object} Backbone.UI.Dropdown
 		 */
 		toggleOpen : function() {
 			this.model.toggleOpened();
@@ -551,6 +557,8 @@
 
 		/**
 		 * Sets value of dropdown
+		 *
+		 * @return {Object} Backbone.UI.Dropdown
 		 */
 		setValue : function(value, props) {
 			this.model.setValue(value, props);
@@ -562,6 +570,8 @@
 		 * Sets new options for dropdown
 		 *
 		 * @param {Object} value   an array with options
+		 *
+		 * @return {Object} Backbone.UI.Dropdown
 		 */
 		setOptions : function(value, props) {
 			this.model.setOptions(value, props);
@@ -573,6 +583,8 @@
 		 * Sets exclusions for the dropdown
 		 *
 		 * @param {Object} value   an array with values of excluded options
+		 *
+		 * @return {Object} Backbone.UI.Dropdown
 		 */
 		setExclusions : function(value, props) {
 			this.model.setExclusions(value, props);

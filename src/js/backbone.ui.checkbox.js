@@ -124,6 +124,10 @@
 		},
 
 		/**
+		 * Public methods
+		 */
+
+		/**
 		 * Returns information whether checkbox is checked or not
 		 *
 		 * @return {Boolean}
@@ -148,7 +152,7 @@
 		/**
 		 * Toggle check
 		 *
-		 * @return {Object} Backbone.UI.Button
+		 * @return {Object} Backbone.UI.Checkbox
 		 */
 		toggleChecked : function() {
 			this.model.toggleChecked();

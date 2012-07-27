@@ -361,6 +361,10 @@
 		},
 
 		/**
+		 * Public methods
+		 */
+
+		/**
 		 * Sets value of spinner
 		 *
 		 * @param {Number} value
