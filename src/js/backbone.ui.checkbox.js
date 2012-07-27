@@ -14,146 +14,146 @@
  */
 
 (function(Backbone, _, $) {
-    "use strict";
+	"use strict";
 
-    /**
-     * Model
-     */
-    var CheckboxModel = Backbone.UI.ComponentModel.extend({
-        defaults : {
-            caption : 'Default Checkbox',
-            disabled : false,
-            template : '#tpl_checkbox',
-            checked : false
-        },
+	/**
+	 * Model
+	 */
+	var CheckboxModel = Backbone.UI.ComponentModel.extend({
+		defaults : {
+			caption : 'Default Checkbox',
+			disabled : false,
+			template : '#tpl_checkbox',
+			checked : false
+		},
 
-        isChecked : function() {
-            return this.get('checked');
-        },
+		isChecked : function() {
+			return this.get('checked');
+		},
 
-        getChecked : function() {
-            return this.get('checked');
-        },
+		getChecked : function() {
+			return this.get('checked');
+		},
 
-        setChecked : function(value) {
-            return this.set('checked', value);
-        },
+		setChecked : function(value) {
+			return this.set('checked', value);
+		},
 
-        toggleChecked : function() {
-            this.set('checked', !this.getChecked());
-        }
-    });
+		toggleChecked : function() {
+			this.set('checked', !this.getChecked());
+		}
+	});
 
-    /**
-     * View
-     */
-    var CheckboxView = Backbone.UI.ComponentView.extend({
-        componentClassName : '.checkbox',
+	/**
+	 * View
+	 */
+	var CheckboxView = Backbone.UI.ComponentView.extend({
+		componentClassName : '.checkbox',
 
-        events : {
-            'click.checkbox' : '_handleClickEvent'
-        },
+		events : {
+			'click.checkbox' : '_handleClickEvent'
+		},
 
-        initialize : function() {
-            var model = this.model;
+		initialize : function() {
+			var model = this.model;
 
-            this.controller = this.options.controller;
+			this.controller = this.options.controller;
 
-            model.on('change:disabled', this._handleDisabledChange, this);
-            model.on('change:checked', this._handleCheckedChange, this);
+			model.on('change:disabled', this._handleDisabledChange, this);
+			model.on('change:checked', this._handleCheckedChange, this);
 
-            this.template = this.getTemplate();
+			this.template = this.getTemplate();
 
-            this.render();
-        },
+			this.render();
+		},
 
-        render : function() {
-            var model = this.model;
+		render : function() {
+			var model = this.model;
 
-            this.$el.html(this.template(model.toJSON()));
+			this.$el.html(this.template(model.toJSON()));
 
-            this._handleDisabledChange();
-            this._handleCheckedChange();
-        },
+			this._handleDisabledChange();
+			this._handleCheckedChange();
+		},
 
-        _handleClickEvent : function() {
-            this.controller._handleClickEvent();
-        },
+		_handleClickEvent : function() {
+			this.controller._handleClickEvent();
+		},
 
-        _handleDisabledChange : function() {
-             this.$el.toggleClass('disabled', this.model.isDisabled());
-        },
+		_handleDisabledChange : function() {
+			this.$el.toggleClass('disabled', this.model.isDisabled());
+		},
 
-        _handleCheckedChange : function() {
-             this.$el.toggleClass('checked', this.model.isChecked());
+		_handleCheckedChange : function() {
+			this.$el.toggleClass('checked', this.model.isChecked());
 
-             this.controller._handleCheckedChange();
-        }
-    });
+			this.controller._handleCheckedChange();
+		}
+	});
 
-    /**
-     * Controller
-     */
-    Backbone.UI.Checkbox = Backbone.UI.ComponentController.extend({
-        initialize : function() {
-            var settings = this.options.settings;
+	/**
+	 * Controller
+	 */
+	Backbone.UI.Checkbox = Backbone.UI.ComponentController.extend({
+		initialize : function() {
+			var settings = this.options.settings;
 
-            //Model
-            this.model = new CheckboxModel(settings);
+			//Model
+			this.model = new CheckboxModel(settings);
 
-            //View
-            this.view = new CheckboxView({
-                el : this.$el,
-                model : this.model,
-                controller : this
-            });
-        },
+			//View
+			this.view = new CheckboxView({
+				el : this.$el,
+				model : this.model,
+				controller : this
+			});
+		},
 
-        _handleClickEvent : function() {
-            var model = this.model;
+		_handleClickEvent : function() {
+			var model = this.model;
 
-            if (model.isDisabled()) {
-                return;
-            }
+			if (model.isDisabled()) {
+				return;
+			}
 
-            this.model.toggleChecked();
-        },
+			this.model.toggleChecked();
+		},
 
-        _handleCheckedChange : function() {
-            this.trigger('cbx:change:checked', this, this.model.getChecked());
-        },
+		_handleCheckedChange : function() {
+			this.trigger('cbx:change:checked', this, this.model.getChecked());
+		},
 
-        /**
-         * Returns information whether checkbox is checked or not
-         *
-         * @return {Boolean}
-         */
-        getChecked : function() {
-            return this.model.getChecked();
-        },
+		/**
+		 * Returns information whether checkbox is checked or not
+		 *
+		 * @return {Boolean}
+		 */
+		getChecked : function() {
+			return this.model.getChecked();
+		},
 
-        /**
-         * Checks or unchecks checkbox
-         *
-         * @param {Boolean} value
-         *
-         * @return {Object} Backbone.UI.Checkbox
-         */
-        setChecked : function(value) {
-            this.model.setChecked(value);
+		/**
+		 * Checks or unchecks checkbox
+		 *
+		 * @param {Boolean} value
+		 *
+		 * @return {Object} Backbone.UI.Checkbox
+		 */
+		setChecked : function(value) {
+			this.model.setChecked(value);
 
-            return this;
-        },
+			return this;
+		},
 
-        /**
-         * Toggle check
-         *
-         * @return {Object} Backbone.UI.Button
-         */
-        toggleChecked : function() {
-            this.model.toggleChecked();
+		/**
+		 * Toggle check
+		 *
+		 * @return {Object} Backbone.UI.Button
+		 */
+		toggleChecked : function() {
+			this.model.toggleChecked();
 
-            return this;
-        }
-    });
+			return this;
+		}
+	});
 }(Backbone, _, jQuery));

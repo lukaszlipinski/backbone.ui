@@ -22,7 +22,7 @@
         <script type="text/template" id="tpl_dropdown_list">
             <div class="dropdown-list">
                 <% var option, options = data.options, i, l = options.length, cssClass;
-console.log(data);
+
                 for (i = 0; i < l; i++) {
                     option = options[i];
                     cssClass = (option.disabled ? ' disabled' : '') + (data.value == option.value ? ' selected' : '');

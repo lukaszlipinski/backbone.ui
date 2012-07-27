@@ -40,7 +40,7 @@
                 {name : 'Option 11x', value : 0, something : 'item'},
                 {name : 'Option 22x', value : 1, something : 'itemm'},
                 {name : 'Options 33x', value : 2, something : 'itemm'}
-            ], {silent : true}).setExclusions([1, 2], {silent : true}).setValue(0);
+            ], {silent : true}).setExclusions([0], {silent : true}).setValue(0);
         }
 
     });
