@@ -31,6 +31,10 @@
 
 		setValue : function(value) {
 			this.set('value', value);
+		},
+
+		getPreviousValue : function() {
+			return this.previous('value');
 		}
 	});
 
@@ -166,6 +170,23 @@
 				model : this.model,
 				controller : this
 			});
+
+			//Events
+			this.model.on('change:value', this._handleValueChange, this);
+		},
+
+		_handleValueChange : function() {
+			this.trigger('txt:change:value', this, this.model.getValue(), this.model.getPreviousValue());
+		},
+
+		setValue : function(value) {
+			this.model.setValue(value);
+
+			return this;
+		},
+
+		getValue : function() {
+			return this.model.getValue();
 		}
 	});
 }(Backbone, _, jQuery));

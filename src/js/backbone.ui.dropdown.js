@@ -452,7 +452,7 @@
 		},
 
 		_handleValueChange : function() {
-			this.trigger('dd:change:value', this.model.getValue());
+			this.trigger('dd:change:value', this, this.model.getValue());
 		},
 
 		_handleClickEvent : function() {

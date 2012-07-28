@@ -86,8 +86,6 @@
 
 		_handleCheckedChange : function() {
 			this.$el.toggleClass('checked', this.model.isChecked());
-
-			this.controller._handleCheckedChange();
 		}
 	});
 
@@ -107,6 +105,9 @@
 				model : this.model,
 				controller : this
 			});
+
+			//Events
+			this.model.on('change:checked', this._handleCheckedChange, this);
 		},
 
 		_handleClickEvent : function() {

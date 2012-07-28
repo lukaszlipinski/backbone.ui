@@ -8,5 +8,9 @@
 		settings : {
 			value : "Some text"
 		}
+	}).on('txt:change:value', function(val, prev_val) {
+		console.log('event:', val, prev_val);
 	});
+
+	window.lol = textbox;
 }(Backbone, _, jQuery));

@@ -97,7 +97,7 @@
 			this.set('value', value, {silent : silent});
 
 			if (currentValue === value) {
-				this.trigger('sp:revert:value');
+				this.trigger('sp:revert:value', this.controller);
 			}
 		},
 
@@ -107,8 +107,6 @@
 
 		setType : function(value) {
 			this.set('type', value);
-
-			return this;
 		},
 
 		getStep : function() {
@@ -117,34 +115,40 @@
 
 		setStep : function(value) {
 			this.set('step', value);
-
-			return this;
 		},
 
 		getMax : function() {
 			return this.get('max');
 		},
 
-		setMax : function(value) {
-			this.set('max', value);
+		setMax : function(max) {
+			var value = this.getValue();
 
-			return this;
+			//Set new max
+			this.set('max', max);
+
+			if (value > max) {
+				this.setValue(max);
+			}
 		},
 
 		getMin : function() {
 			return this.get('min');
 		},
 
-		setMin : function(value) {
-			this.set('min', value);
+		setMin : function(min) {
+			var value = this.getValue();
 
-			return this;
+			//Set new min
+			this.set('min', min);
+
+			if (value < min) {
+				this.setValue(min);
+			}
 		},
 
 		setValue : function(value, silent) {
 			this._changeValue(value, 0, 1, silent);
-
-			return this;
 		},
 
 		getValue : function(value) {
@@ -161,8 +165,6 @@
 			step *= multiplier || 1;
 
 			this._changeValue(this.getValue(), step, 1);
-
-			return this;
 		},
 
 		stepDown : function(multiplier) {
@@ -171,8 +173,6 @@
 			step *= multiplier || 1;
 
 			this._changeValue(this.getValue(), step, -1);
-
-			return this;
 		}
 	});
 
@@ -195,8 +195,6 @@
 
 			model.on('change:disabled', this._handleDisabledChange, this);
 			model.on('change:value', this._handleValueChange, this);
-			model.on('change:max', this._handleMaxChange, this);
-			model.on('change:min', this._handleMinChange, this);
 			model.on('sp:revert:value', this._handleRevertChange, this);
 
 			this.template = this.getTemplate();
@@ -236,16 +234,6 @@
 		_handleValueChange : function() {
 			//Change value in the HTML
 			this.$input.val(this.model.getValue());
-
-			this.controller._handleValueChange();
-		},
-
-		_handleMaxChange : function() {
-			this.controller._handleMaxChange();
-		},
-
-		_handleMinChange : function() {
-			this.controller._handleMinChange();
 		},
 
 		_handleRevertChange : function() {
@@ -278,13 +266,20 @@
 				throw "Unsupported Backbone.UI.Spinner type";
 			}
 
+			//Model
 			this.model = new SpinnerModel(_.extend({tabIndex : Backbone.UI.getNextTabIndex()}, default_settings['type_' + settings.type], settings));
 
+			//View
 			this.view = new SpinnerView({
 				el : this.$el,
 				model : this.model,
 				controller : this
 			});
+
+			//Events
+			this.model.on('change:value', this._handleValueChange, this);
+			this.model.on('change:max', this._handleMaxChange, this);
+			this.model.on('change:min', this._handleMinChange, this);
 		},
 
 		_handleButtonUpClickEvent : function() {
@@ -345,11 +340,9 @@
 		},
 
 		_handleValueChange : function() {
-			var model = this.model,
-				value = model.getValue(),
-				previousValue = model.getPreviousValue();
+			var model = this.model;
 
-			this.trigger('sp:change:value', this, value, previousValue);
+			this.trigger('sp:change:value', this, model.getValue(), model.getPreviousValue());
 		},
 
 		_handleMaxChange : function() {
