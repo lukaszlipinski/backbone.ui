@@ -11,14 +11,14 @@
 	background-color:#8dc63f;
 }
 
+*:first-child+html .spinner {
+    display:inline;
+}
+
 .spinner.disabled {
     background-color: #363636;
     color:#898989;
 	cursor:default;
-}
-
-*:first-child+html .spinner {
-    display:inline;
 }
 
 .spinner .btn_up,

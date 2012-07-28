@@ -17,7 +17,7 @@
  *        - 'integer'   treats all values as intergers
  *        - 'float'     treats all values as floats
  *    {String} template    determinates template source
- *	  {Number} tabindex    determinates the HTML tabindex attribute
+ *	  {Number} tabIndex    determinates the HTML tabindex attribute
  *
  * Triggered events:
  * - sp:change:value    triggered when value was changed
@@ -56,7 +56,7 @@
 		defaults : {
 			template : '#tpl_spinner',
 			disabled : false,
-			tabindex : 1
+			tabIndex : 1
 		},
 
 		initialize : function() {
@@ -182,10 +182,10 @@
 		$input : null,
 
 		events : {
-			'click.spinner .sp-btn-up' : '_handleButtonUpClick',
-			'click.spinner .sp-btn-down' : '_handleButtonDownClick',
-			'blur.spinner .sp-input' : '_handleInputBlur',
-			'keypress.spinner .sp-input' : '_handleInputKeyPress'
+			'click.spinner .sp-btn-up' : '_handleButtonUpClickEvent',
+			'click.spinner .sp-btn-down' : '_handleButtonDownClickEvent',
+			'blur.spinner .sp-input' : '_handleInputBlurEvent',
+			'keypress.spinner .sp-input' : '_handleInputKeyPressEvent'
 		},
 
 		initialize : function() {
@@ -217,20 +217,20 @@
 			this._handleDisabledChange();
 		},
 
-		_handleButtonUpClick : function() {
-			this.controller._handleButtonUpClick();
+		_handleButtonUpClickEvent : function() {
+			this.controller._handleButtonUpClickEvent();
 		},
 
-		_handleButtonDownClick : function() {
-			this.controller._handleButtonDownClick();
+		_handleButtonDownClickEvent : function() {
+			this.controller._handleButtonDownClickEvent();
 		},
 
-		_handleInputBlur : function() {
-			this.controller._handleInputBlur(this.$input.val());
+		_handleInputBlurEvent : function() {
+			this.controller._handleInputBlurEvent(this.$input.val());
 		},
 
-		_handleInputKeyPress : function(e) {
-			this.controller._handleInputKeyPress(this.$input.val(), e.keyCode, e.ctrlKey, e.shiftKey);
+		_handleInputKeyPressEvent : function(e) {
+			this.controller._handleInputKeyPressEvent(this.$input.val(), e.keyCode, e.ctrlKey, e.shiftKey);
 		},
 
 		_handleValueChange : function() {
@@ -278,7 +278,7 @@
 				throw "Unsupported Backbone.UI.Spinner type";
 			}
 
-			this.model = new SpinnerModel(_.extend({tabindex : Backbone.UI.getNextTabIndex()}, default_settings['type_' + settings.type], settings));
+			this.model = new SpinnerModel(_.extend({tabIndex : Backbone.UI.getNextTabIndex()}, default_settings['type_' + settings.type], settings));
 
 			this.view = new SpinnerView({
 				el : this.$el,
@@ -287,7 +287,7 @@
 			});
 		},
 
-		_handleButtonUpClick : function() {
+		_handleButtonUpClickEvent : function() {
 			var model = this.model;
 
 			if (model.isDisabled()) {
@@ -297,7 +297,7 @@
 			model.stepUp();
 		},
 
-		_handleButtonDownClick : function() {
+		_handleButtonDownClickEvent : function() {
 			var model = this.model;
 
 			if (model.isDisabled()) {
@@ -307,11 +307,11 @@
 			model.stepDown();
 		},
 
-		_handleInputBlur : function(value) {
+		_handleInputBlurEvent : function(value) {
 			this.model.setValue(value, true);
 		},
 
-		_handleInputKeyPress : function(value, key, ctrl, shift) {
+		_handleInputKeyPressEvent : function(value, key, ctrl, shift) {
 			var model = this.model,
 				max = model.getMax(), min = model.getMin(),
 				restricted_max = max === Infinity || max === -Infinity,
