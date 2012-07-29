@@ -24,6 +24,7 @@
 
 		ui : {
 			empty : 'ui-txt-empty',
+			clear : 'ui-txt-clear',
 			disabled : 'ui-txt-disabled'
 		},
 
@@ -43,8 +44,7 @@
 		textboxViewEvents['click' + classes.events.main + ' ' + classes.js.clear] = '_handleClearButtonClickEvent';
 
 	/*
-	min : 0,
-	max : 10,
+
 	focus : false,
 	selection : false,
 	selection_details : null,
@@ -58,41 +58,143 @@
 			tabIndex : 1,
 			template : '#tpl_textbox',
 			emptyMessage : '',
-			clearTextButton : false,
+			clearButton : false,
 			live : false,
+			invalidMessage : '',
+			_error : false,
+			//type 'custom'
 			regexp : /(.*)/g,
-			invalidMsg : ''
+
+			//type 'number'
+			min : 0,
+			max : 10
+		},
+
+		getMax : function() {
+			return this.get('max');
+		},
+
+		setMax : function(value) {
+			this.set('max', value);
+		},
+
+		getMin : function() {
+			return this.get('min');
+		},
+
+		setMin : function(value) {
+			this.set('min', value);
+		},
+
+		getRegExp : function() {
+			return this.get('regexp');
+		},
+
+		correctMistakes : function() {
+			return !this.get('invalidMessage');
+		},
+
+		getInvalidMessage : function() {
+			return this.get('invalidMessage');
 		},
 
 		isEmpty : function() {
 			return this.getValue() === '';
 		},
 
-		withEmptyMessage : function() {
-			return this.get('emptyMessage');
+		getType : function() {
+			return this.get('type');
+		},
+
+		setType : function(value) {
+			this.set('type', value);
 		},
 
 		getValue : function() {
 			return this.get('value');
 		},
 
+		setErrorFlag : function(value) {
+			this.set('_error', value);
+		},
+
 		setValue : function(value) {
-			this.set('value', value);
+			var type = this.getType(),
+				max, min, correctMistakes = this.correctMistakes();
+
+			if (type === 'text') {
+				this.set('value', value);
+				this.setErrorFlag(false);
+			}
+			else if (type === 'number') {
+				value = parseInt(value, 10) || 0;
+				max = this.getMax(); min = this.getMin();
+
+				if (value > max) {
+					if (correctMistakes) {
+						this.setValue(max);
+					}
+					else {
+						this.setErrorFlag(true);
+					}
+				}
+
+				if (value < min) {
+					if (correctMistakes) {
+						this.setValue(min);
+						this.setErrorFlag(false);
+					}
+					else {
+						this.setErrorFlag(true);
+					}
+				}
+			}
+			else if (type === 'custom') {
+				if (!(new RegExp(this.getRegExp()).test(value))) {
+					if (correctMistakes) {
+						this.setValue('');
+					}
+					else {
+						this.setErrorFlag(true);
+					}
+				}
+			}
+			else {
+				throw "Unsupported Backbone.UI.Textbox component type: " + type;
+			}
 		},
 
 		getPreviousValue : function() {
 			return this.previous('value');
+		},
+
+		getEmptyMessage : function() {
+			return this.get('emptyMessage');
+		},
+
+		showClearButton : function() {
+			return this.get('clearButton');
+		},
+
+		liveTypingEnabled : function() {
+			return this.get('live');
+		},
+
+		getTabIndex : function() {
+			return this.get('tabIndex');
 		}
 	});
 
 	var TextboxView = Backbone.UI.ComponentView.extend({
+		events : textboxViewEvents,
+
 		componentClassName : classes.events.main,
+
+		liveTypingTimer : null,
 
 		$input : null,
 		$empty : null,
 		$clear : null,
-
-		events : textboxViewEvents,
 
 		initialize : function() {
 			var model = this.model;
@@ -108,8 +210,12 @@
 		},
 
 		render : function() {
+			var model = this.model;
+
 			this.$el.html(this.template({
-				value : this.model.getValue()
+				value : model.getValue(),
+				emptyMessage : model.getEmptyMessage(),
+				tabIndex : model.getTabIndex() || Backbone.UI.getNextTabIndex()
 			}));
 
 			this.$input = this.$el.find(classes.js.input);
@@ -122,6 +228,33 @@
 
 			//Apply default settings on the HTML nodes
 			this._handleDisabledChange();
+			this.checkForEmptyMessage();
+		},
+
+		checkForEmptyMessage : function() {
+			this[this.model.isEmpty() ? 'showEmptyMessage' : 'hideEmptyMessage']();
+		},
+
+		showEmptyMessage : function() {
+			this.$el.addClass(classes.ui.empty);
+		},
+
+		hideEmptyMessage : function() {
+			this.$el.removeClass(classes.ui.empty);
+		},
+
+		checkForClearButton : function() {
+			var model = this.model;
+
+			this[model.showClearButton() && !model.isEmpty() ? 'showClearButton' : 'hideClearButton']();
+		},
+
+		showClearButton : function() {
+			this.$el.addClass(classes.ui.clear);
+		},
+
+		hideClearButton : function() {
+			this.$el.removeClass(classes.ui.clear);
 		},
 
 		_handleValueChange : function() {
@@ -129,9 +262,8 @@
 
 			this.$input.val(model.getValue());
 
-			if (model.isEmpty()) {
-				this.$el.addClass(classes.ui.empty);
-			}
+			this.checkForEmptyMessage();
+			this.checkForClearButton();
 		},
 
 		_handleDisabledChange : function() {
@@ -148,16 +280,20 @@
 		},
 
 		_handleEmptyMessageClickEvent : function() {
-			this.$el.removeClass(classes.ui.empty);
+			this.hideEmptyMessage();
 			this.$input.focus();
 		},
 
 		_handleClearButtonClickEvent : function() {
-			//clearTextbox();
+			this.hideClearButton();
+
+			this.controller._handleClearButtonClickEvent();
 		},
 
 		_handleInputBlurEvent : function() {
 			this.controller._handleInputBlurEvent(this.$input.val());
+
+			this.checkForEmptyMessage();
 		},
 
 		_handleInputFocusEvent : function() {
@@ -167,32 +303,26 @@
 				return;
 			}
 
-			this.$el.removeClass(classes.ui.empty);
+			this.hideEmptyMessage();
 
 			this.controller.trigger(classes.triggers.focused, this.controller);
 		},
 
 		_handleInputKeyUpEvent : function() {
-			/*if (settings.disabled) {
-					return;
-				}
+			var model = this.model,
+				_self = this;
 
-				//Show clear message icon
-				if (settings.clear_msg_button && ($input.val() || "").length > 0) {
-					showClearMessageButton();
-					hideInitialMessage();
-				}
-				else {
-					hideClearMessageButton();
-				}
+			if (model.isDisabled()) {
+				return;
+			}
 
-				if (settings.live) {
-					w.clearTimeout(live_typing_timer);
+			if (model.liveTypingEnabled()) {
+				window.clearTimeout(this.liveTypingTimer);
 
-					live_typing_timer = w.setTimeout(function () {
-						setValue($input.val());
-					}, 250);
-				}*/
+				this.liveTypingTimer = window.setTimeout(function() {
+					_self.controller._handleLiveTyping(_self.$input.val());
+				}, 250);
+			}
 		},
 
 		_handleInputKeyPressEvent : function(e) {
@@ -244,6 +374,14 @@
 			}
 
 			model.setValue(value);
+		},
+
+		_handleClearButtonClickEvent : function() {
+			this.model.setValue('');
+		},
+
+		_handleLiveTyping : function(value) {
+			this.model.setValue(value);
 		},
 
 		setValue : function(value) {

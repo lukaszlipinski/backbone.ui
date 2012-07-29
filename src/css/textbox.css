@@ -9,11 +9,21 @@
 	border-radius: 5px;
     color:white;
 	background-color:#8dc63f;
-	padding:0 5px;
 }
 
 *:first-child+html .textbox {
     display:inline;
+}
+
+.textbox .middle {
+	position: relative;
+	overflow: hidden;
+	height:24px;
+	padding: 0 5px;
+}
+
+.textbox.ui-txt-empty .middle {
+	padding: 0 20px 0 5px;
 }
 
 .textbox input {
@@ -23,10 +33,9 @@
     padding:0;
     margin:0;
     border:0;
-    text-align:right;
     display:block;
     position:relative;
-    line-height:14px;
+	line-height:14px;
     font-size:12px;
 	color:white;
 }
@@ -38,22 +47,48 @@
 	left:0;
 	bottom:0;
 	right:0;
+	line-height:24px;
+    font-size:12px;
+	color:white;
+	padding:0 5px;
 }
 
-.textbox.txt-empty input {
+.textbox.ui-txt-empty input {
 	display:none;
 }
 
-.textbox.txt-empty .empty-message {
+.textbox.ui-txt-empty .empty-message {
 	display: block;
 }
 
-.textbox.disabled {
+.textbox .clear-txt-button {
+	width:15px;
+	height:15px;
+	position:absolute;
+	top:5px;
+	right:5px;
+	background-color:red;
+	display:none;
+}
+
+.textbox.ui-txt-clear .clear-txt-button {
+	display:block;
+}
+
+.textbox.ui-txt-empty .clear-txt-button {
+	display:none;
+}
+
+.textbox.ui-txt-disabled {
     background-color: #363636;
     color:#898989;
 	cursor:default;
 }
 
-.textbox.disabled input {
+.textbox.ui-txt-disabled .clear-txt-button {
+	display:none;
+}
+
+.textbox.ui-txt-disabled input {
 	color:#898989;
 }

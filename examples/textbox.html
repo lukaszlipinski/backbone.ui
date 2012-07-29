@@ -15,8 +15,10 @@
 
         <script type="text/template" id="tpl_textbox">
 			<!--div class="textbox" -->
-               <input class="js-txt-input" type="text" value="<%= data.value %>" />
-			   <div class="empty-message js-txt-empty"><%= data.emptyMessage %></div>
+				<div class="middle">
+					<input class="js-txt-input" type="text" tabindex="<%= data.tabIndex %>" value="<%= data.value %>" />
+					<div class="empty-message js-txt-empty"><%= data.emptyMessage %></div>
+				</div>
 			    <div class="clear-txt-button js-txt-clear"></div>
             <!--/div-->
         </script>
