@@ -22,19 +22,20 @@
     left:0;
 }
 
-.checkbox.checked .check {
+.checkbox.ui-cbx-checked .check {
     border:2px solid white;
     background-color:#8dc63f;
 }
 
-.checkbox.disabled {
+.checkbox.ui-cbx-disabled {
     cursor: default;
+	color:#898989;
 }
 
-.checkbox.disabled .check {
-    border:2px solid #363636;
+.checkbox.ui-cbx-disabled .check {
+    border:2px solid #898989;
 }
 
-.checkbox.disabled.checked .check {
-    background-color:#363636;
+.checkbox.ui-cbx-disabled.ui-cbx-checked .check {
+    background-color:#898989;
 }

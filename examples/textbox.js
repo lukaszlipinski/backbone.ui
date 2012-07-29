@@ -8,7 +8,7 @@
 		settings : {
 			value : "Some text"
 		}
-	}).on('txt:change:value', function(val, prev_val) {
+	}).on('txt:change:value', function(_txt, val, prev_val) {
 		console.log('event:', val, prev_val);
 	});
 

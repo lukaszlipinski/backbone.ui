@@ -3,7 +3,7 @@
 (function(Backbone, _, $) {
     "use strict";
 
-    window.label = new Backbone.UI.Label({
+    var label = new Backbone.UI.Label({
 		el : $('.lbl_example'),
 		settings : {
 			caption : 'Hey you!',

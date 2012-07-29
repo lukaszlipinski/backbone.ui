@@ -27,16 +27,16 @@
             ],
             exclusions : [0]
         }
-    }).on('dd:change:value', function(value) {
+    }).on('dd:change:value', function(_dd, value) {
         if (value == 1) {
-            dropdown.setOptions([
+			dropdown.setOptions([
                 {name : 'Option 1x', value : 0, something : 'item'},
                 {name : 'Option 2x', value : 1, something : 'itemm'},
                 {name : 'Options 3x', value : 2, something : 'itemm'}
             ]);
         }
         else {
-            dropdown.setOptions([
+			dropdown.setOptions([
                 {name : 'Option 11x', value : 0, something : 'item'},
                 {name : 'Option 22x', value : 1, something : 'itemm'},
                 {name : 'Options 33x', value : 2, something : 'itemm'}

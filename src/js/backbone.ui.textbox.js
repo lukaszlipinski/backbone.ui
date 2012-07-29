@@ -1,7 +1,46 @@
 /*globals Backbone, _, jQuery */
 
+
+/**
+ *
+ * .empty
+ * .disabled
+ *
+ */
 (function(Backbone, _, $) {
 	"use strict";
+
+	var ENTER = Backbone.UI.KEYS.ENTER;
+
+	var classes = {
+		events : {
+			main : '.textbox'
+		},
+
+		triggers : {
+			focused : 'txt:focused',
+			changeValue : 'txt:change:value'
+		},
+
+		ui : {
+			empty : 'ui-txt-empty',
+			disabled : 'ui-txt-disabled'
+		},
+
+		js : {
+			input : '.js-txt-input',
+			empty : '.js-txt-empty',
+			clear : '.js-txt-clear'
+		}
+	};
+
+	var textboxViewEvents = {};
+		textboxViewEvents['keypress' + classes.events.main + ' ' + classes.js.input] = '_handleInputKeyPressEvent';
+		textboxViewEvents['keyup' + classes.events.main + ' ' + classes.js.input] = '_handleInputKeyUpEvent';
+		textboxViewEvents['focus' + classes.events.main + ' ' + classes.js.input] = '_handleInputFocusEvent';
+		textboxViewEvents['blur' + classes.events.main + ' ' + classes.js.input] = '_handleInputBlurEvent';
+		textboxViewEvents['click' + classes.events.main + ' ' + classes.js.empty] = '_handleEmptyMessageClickEvent';
+		textboxViewEvents['click' + classes.events.main + ' ' + classes.js.clear] = '_handleClearButtonClickEvent';
 
 	/*
 	min : 0,
@@ -25,6 +64,14 @@
 			invalidMsg : ''
 		},
 
+		isEmpty : function() {
+			return this.getValue() === '';
+		},
+
+		withEmptyMessage : function() {
+			return this.get('emptyMessage');
+		},
+
 		getValue : function() {
 			return this.get('value');
 		},
@@ -39,25 +86,20 @@
 	});
 
 	var TextboxView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.textbox',
+		componentClassName : classes.events.main,
 
 		$input : null,
+		$empty : null,
+		$clear : null,
 
-		events : {
-			'keypress.textbox .txt-input' : '_handleInputKeyPressEvent',
-			'keyup.textbox .txt-input' : '_handleInputKeyUpEvent',
-			'focus.textbox .txt-input' : '_handleInputFocusEvent',
-			'blur.textbox .txt-input' : '_handleInputBlurEvent',
-
-			'click txt-empty' : '_handleEmptyMessageClickEvent',
-			'click txt-clear' : '_handleClearButtonClickEvent'
-		},
+		events : textboxViewEvents,
 
 		initialize : function() {
 			var model = this.model;
 
 			this.controller = this.options.controller;
 
+			model.on('change:value', this._handleValueChange, this);
 			model.on('change:disabled', this._handleDisabledChange, this);
 
 			this.template = this.getTemplate();
@@ -70,7 +112,9 @@
 				value : this.model.getValue()
 			}));
 
-			this.$input = this.$el.find('.txt-input');
+			this.$input = this.$el.find(classes.js.input);
+			this.$empty = this.$el.find(classes.js.empty);
+			this.$clear = this.$el.find(classes.js.clear);
 
 			if (!this.$input.is('input')) {
 				throw "Skin should contain 'input' HTMLElement.";
@@ -80,10 +124,20 @@
 			this._handleDisabledChange();
 		},
 
+		_handleValueChange : function() {
+			var model = this.model;
+
+			this.$input.val(model.getValue());
+
+			if (model.isEmpty()) {
+				this.$el.addClass(classes.ui.empty);
+			}
+		},
+
 		_handleDisabledChange : function() {
 			var isDisabled = this.model.isDisabled();
 
-			this.$el.toggleClass('disabled', isDisabled);
+			this.$el.toggleClass(classes.ui.disabled, isDisabled);
 
 			if (isDisabled) {
 				this.$input.attr('disabled', 'disabled');
@@ -94,7 +148,8 @@
 		},
 
 		_handleEmptyMessageClickEvent : function() {
-			//$input.focus();
+			this.$el.removeClass(classes.ui.empty);
+			this.$input.focus();
 		},
 
 		_handleClearButtonClickEvent : function() {
@@ -102,23 +157,19 @@
 		},
 
 		_handleInputBlurEvent : function() {
-			/*if (settings.disabled) {
-					return;
-				}
-
-				setValue($input.val());*/
+			this.controller._handleInputBlurEvent(this.$input.val());
 		},
 
 		_handleInputFocusEvent : function() {
-			/*if (settings.disabled) {
-					return;
-				}
+			var model = this.model;
 
-				$el.trigger("txt:focused", [_self]);
+			if (model.isDisabled()) {
+				return;
+			}
 
-				if (settings.value === '' && settings.initial_message) {
-					hideInitialMessage();
-				}*/
+			this.$el.removeClass(classes.ui.empty);
+
+			this.controller.trigger(classes.triggers.focused, this.controller);
 		},
 
 		_handleInputKeyUpEvent : function() {
@@ -144,15 +195,8 @@
 				}*/
 		},
 
-		_handleInputKeyPressEvent : function() {
-			/*if (settings.disabled) {
-				return;
-			}
-
-			//Enter
-			if (e.keyCode === 13) {
-				setValue($input.val());
-			}*/
+		_handleInputKeyPressEvent : function(e) {
+			this.controller._handleInputKeyPressEvent(e.keyCode, this.$input.val());
 		}
 	});
 
@@ -176,7 +220,30 @@
 		},
 
 		_handleValueChange : function() {
-			this.trigger('txt:change:value', this, this.model.getValue(), this.model.getPreviousValue());
+			this.trigger(classes.triggers.changeValue, this, this.model.getValue(), this.model.getPreviousValue());
+		},
+
+		_handleInputKeyPressEvent : function(keyCode, value) {
+			var model = this.model;
+
+			if (model.isDisabled()) {
+				return;
+			}
+
+			//Enter
+			if (keyCode === ENTER) {
+				model.setValue(value);
+			}
+		},
+
+		_handleInputBlurEvent : function(value) {
+			var model = this.model;
+
+			if (model.isDisabled()) {
+				return;
+			}
+
+			model.setValue(value);
 		},
 
 		setValue : function(value) {

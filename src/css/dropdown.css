@@ -24,7 +24,7 @@
     background-color:#96d246;
 }
 
-.dropdown.disabled {
+.dropdown.ui-dd-disabled {
     background-color: #363636;
     color:#898989;
     cursor:default;
@@ -45,7 +45,7 @@
     display:inline;
 }
 
-.dropdown-list.opened {
+.dropdown-list.ui-dd-opened {
     display:block;
 }
 
@@ -58,16 +58,12 @@
     background-color:#96d246;
 }
 
-.dropdown-list .option.selected {
+.dropdown-list .option.ui-dd-selected {
     background-color:red;
 }
 
-.dropdown-list .option.disabled {
+.dropdown-list .option.ui-dd-disabled {
     background-color: #363636;
     color:#898989;
     cursor:default;
-}
-
-.dd-close-list-layer {
-
 }

@@ -15,7 +15,7 @@
 
         <script type="text/template" id="tpl_dropdown">
             <!--div class="dropdown dd-caption" -->
-                <div class="caption dd-caption"><%= data.name + ' test ' +data.something %></div>
+                <div class="caption js-dd-caption"><%= data.name + ' test ' +data.something %></div>
             <!--/div-->
         </script>
 
@@ -25,9 +25,9 @@
 
                 for (i = 0; i < l; i++) {
                     option = options[i];
-                    cssClass = (option.disabled ? ' disabled' : '') + (data.value == option.value ? ' selected' : '');
+                    cssClass = (option.disabled ? ' ui-dd-disabled' : '') + (data.value == option.value ? ' ui-dd-selected' : '');
                     %>
-                    <div class="dd-option option<%= cssClass %>" dd-data="<%= option.value %>"><%= option.name +' '+option.value %></div>
+                    <div class="js-dd-option option<%= cssClass %>" data-dd-option="<%= option.value %>"><%= option.name +' '+option.value %></div>
                 <% }
                 %>
             </div>

@@ -31,7 +31,7 @@
 	background-color:#96d246;
 }
 
-.button.disabled {
+.button.ui-btn-disabled {
     background-color: #363636;
     color:#898989;
 	cursor:default;

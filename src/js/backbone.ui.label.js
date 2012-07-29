@@ -11,6 +11,16 @@
 (function(Backbone, _, $) {
 	"use strict";
 
+	var classes = {
+		events : {
+			main : '.label'
+		},
+
+		ui : {
+			disabled : 'ui-lbl-disabled'
+		}
+	};
+
 	/**
 	 * Model
 	 */
@@ -36,7 +46,7 @@
 	 * View
 	 */
 	var LabelView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.label',
+		componentClassName : classes.events.main,
 
 		initialize : function() {
 			var model = this.model;
@@ -63,7 +73,7 @@
 		},
 
 		_handleDisabledChange : function() {
-			this.$el.toggleClass('disabled', this.model.isDisabled());
+			this.$el.toggleClass(classes.ui.disabled, this.model.isDisabled());
 		}
 	});
 

@@ -52,6 +52,35 @@
 		}
 	};
 
+	var classes = {
+		events : {
+			main : '.spinner'
+		},
+
+		triggers : {
+			revertValue : 'sp:revert:value',
+			changeValue : 'sp:change:value',
+			changeMax : 'sp:change:max',
+			changeMin : 'sp:change:min'
+		},
+
+		ui : {
+			disabled : 'ui-sp-disabled'
+		},
+
+		js : {
+			input : '.js-sp-input',
+			buttonUp : '.js-sp-btn-up',
+			buttonDown : '.js-sp-btn-down'
+		}
+	};
+
+	var spinnerViewEvents = {};
+		spinnerViewEvents['click' + classes.events.main + ' ' + classes.js.buttonUp] = '_handleButtonUpClickEvent';
+		spinnerViewEvents['click' + classes.events.main + ' ' + classes.js.buttonDown] = '_handleButtonDownClickEvent';
+		spinnerViewEvents['blur' + classes.events.main + ' ' + classes.js.input] = '_handleInputBlurEvent';
+		spinnerViewEvents['keypress' + classes.events.main + ' ' + classes.js.input] = '_handleInputKeyPressEvent';
+
 	var SpinnerModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
 			template : '#tpl_spinner',
@@ -97,7 +126,7 @@
 			this.set('value', value, {silent : silent});
 
 			if (currentValue === value) {
-				this.trigger('sp:revert:value', this.controller);
+				this.trigger(classes.triggers.revertValue, this.controller);
 			}
 		},
 
@@ -177,16 +206,11 @@
 	});
 
 	var SpinnerView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.spinner',
+		componentClassName : classes.events.main,
 
 		$input : null,
 
-		events : {
-			'click.spinner .sp-btn-up' : '_handleButtonUpClickEvent',
-			'click.spinner .sp-btn-down' : '_handleButtonDownClickEvent',
-			'blur.spinner .sp-input' : '_handleInputBlurEvent',
-			'keypress.spinner .sp-input' : '_handleInputKeyPressEvent'
-		},
+		events : spinnerViewEvents,
 
 		initialize : function() {
 			var model = this.model;
@@ -195,7 +219,7 @@
 
 			model.on('change:disabled', this._handleDisabledChange, this);
 			model.on('change:value', this._handleValueChange, this);
-			model.on('sp:revert:value', this._handleRevertChange, this);
+			model.on(classes.triggers.revertValue, this._handleRevertChange, this);
 
 			this.template = this.getTemplate();
 
@@ -205,7 +229,7 @@
 		render : function() {
 			this.$el.html(this.template(this.model.toJSON()));
 
-			this.$input = this.$el.find('.sp-input');
+			this.$input = this.$el.find(classes.js.input);
 
 			if (!this.$input.is('input')) {
 				throw "Skin should contain 'input' HTMLElement.";
@@ -243,7 +267,7 @@
 		_handleDisabledChange : function() {
 			var isDisabled = this.model.isDisabled();
 
-			this.$el.toggleClass('disabled', isDisabled);
+			this.$el.toggleClass(classes.ui.disabled, isDisabled);
 
 			if (isDisabled) {
 				this.$input.attr('disabled', 'disabled');
@@ -342,15 +366,15 @@
 		_handleValueChange : function() {
 			var model = this.model;
 
-			this.trigger('sp:change:value', this, model.getValue(), model.getPreviousValue());
+			this.trigger(classes.triggers.changeValue, this, model.getValue(), model.getPreviousValue());
 		},
 
 		_handleMaxChange : function() {
-			this.trigger('sp:change:max', this, this.model.getMax());
+			this.trigger(classes.triggers.changeMax, this, this.model.getMax());
 		},
 
 		_handleMinChange : function() {
-			this.trigger('sp:change:min', this, this.model.getMin());
+			this.trigger(classes.triggers.changeMin, this, this.model.getMin());
 		},
 
 		/**

@@ -1,7 +1,65 @@
 /*globals Backbone, _, jQuery */
 
+/**
+ *
+ * - dd:change:value
+ *
+ * Component Internal CSS Classes:
+ * - caption element
+ *     - none
+ * - option elements
+ *     - js-dd-option
+ *
+ * Component External CSS Classes:
+ * - caption element
+ *     - ui-dd-disabled
+ * - list element
+ *     - ui-dd-opened
+ * - options elements
+ *     - ui-dd-selected
+ *
+ * Component Attributes
+ * - options elements
+ *     - data-dd-option
+ */
+
 (function(Backbone, _, $) {
     "use strict";
+
+	var classes = {
+		events : {
+			main : '.dropdown',
+			list : '.dropdown-list'
+		},
+
+		triggers : {
+			changeValue : 'dd:change:value'
+		},
+
+		ui : {
+			opened : 'ui-dd-opened',
+			selected : 'ui-dd-selected',
+			disabled : 'ui-dd-disabled'
+		},
+
+		data : {
+			option : 'data-dd-option'
+		},
+
+		js : {
+			option : '.js-dd-option',
+			closeListLayer : '.js-dd-close-list-layer'
+		}
+	};
+
+	var dropdownViewEvents = {};
+		dropdownViewEvents['click' + classes.events.main] = '_handleClickEvent';
+		dropdownViewEvents['mouseover' + classes.events.main] = '_handleMouseOverEvent';
+		dropdownViewEvents['mouseout' + classes.events.main] = '_handleMouseOutEvent';
+
+	var dropdownListViewEvents = {};
+		dropdownListViewEvents['click' + classes.events.list + ' ' + classes.js.option] = '_handleListOptionClickEvent';
+		dropdownListViewEvents['mouseout' + classes.events.list] = '_handleListMouseOutEvent';
 
 	/**
 	 * Models
@@ -203,7 +261,7 @@
 	 * Views
 	 */
 	var DropdownListView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.dropdown-list',
+		componentClassName : classes.events.list,
 		//unique id for each list
 		listindex : 0,
 		//width of the list directly after initialization
@@ -213,10 +271,7 @@
 		//a layer which covers entire screen when dropdown list is opened
 		$closeListLayer : null,
 
-		events : {
-			'click.dropdown-list .dd-option' : '_handleListOptionClickEvent',
-			'mouseout.dropdown-list' : '_handleListMouseOutEvent'
-		},
+		events : dropdownListViewEvents,
 
 		initialize : function() {
 			var model = this.model;
@@ -285,13 +340,13 @@
 
 			this.createCloseListLayer();
 
-			$parent.addClass('opened');
-			$el.addClass('opened');
+			$parent.addClass(classes.ui.opened);
+			$el.addClass(classes.ui.opened);
 		},
 
 		close : function() {
-			this.$parent.removeClass('opened');
-			this.$el.removeClass('opened');
+			this.$parent.removeClass(classes.ui.opened);
+			this.$el.removeClass(classes.ui.opened);
 
 			this.destroyCloseListLayer();
 		},
@@ -306,7 +361,7 @@
 					position : 'absolute', top : 0, left : 0, right : 0, bottom : 0, zIndex : 19000
 				};
 
-			this.$closeListLayer = $('<div class="dd-close-list-layer ' + this.model.getClassName() + '" />').appendTo('body').css(attr).one("click", function() {
+			this.$closeListLayer = $('<div class="' + (classes.js.closeListLayer).substr(1) + ' ' + this.model.getClassName() + '" />').appendTo('body').css(attr).one("click", function() {
 				_self.controller._handleCloseListLayerClickEvent();
 			});
 
@@ -357,7 +412,7 @@
 
 		_handleListOptionClickEvent : function(e) {
 			var $target = $(e.currentTarget),
-				value = $target.attr('dd-data');
+				value = $target.attr(classes.data.option);
 
 			this.controller._handleListOptionClickEvent(value);
 		},
@@ -369,7 +424,7 @@
         },
 
 		destroy : function() {
-			this.$el.off('.dropdown').remove();
+			this.$el.off(classes.events.main).remove();
 
 			this.destroyCloseListLayer();
 		}
@@ -377,13 +432,9 @@
 
 
 	var DropdownView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.dropdown',
+		componentClassName : classes.events.main,
 
-		events : {
-			'click.dropdown' : '_handleClickEvent',
-			'mouseover.dropdown' : '_handleMouseOverEvent',
-			'mouseout.dropdown' : '_handleMouseOutEvent'
-		},
+		events : dropdownViewEvents,
 
 		initialize : function() {
 			var model = this.model;
@@ -452,7 +503,7 @@
 		},
 
 		_handleValueChange : function() {
-			this.trigger('dd:change:value', this, this.model.getValue());
+			this.trigger(classes.triggers.changeValue, this, this.model.getValue());
 		},
 
 		_handleClickEvent : function() {

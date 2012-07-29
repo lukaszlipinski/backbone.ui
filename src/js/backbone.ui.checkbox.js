@@ -11,10 +11,35 @@
  *
  * Triggered events:
  * - cbx:change:checked    fired when 'checked' state is changed
+ *
+ * Component Internal CSS Classes:
+ * - none
+ *
+ * Component External CSS Classes:
+ * - disabled
+ * - checked
  */
 
 (function(Backbone, _, $) {
 	"use strict";
+
+	var classes = {
+		events : {
+			main : '.checkbox'
+		},
+
+		triggers : {
+			changeChecked : 'cbx:change:checked'
+		},
+
+		ui : {
+			disabled : 'ui-cbx-disabled',
+			checked : 'ui-cbx-checked'
+		}
+	};
+
+	var checkboxViewEvents = {};
+		checkboxViewEvents['click' + classes.events.main] = '_handleClickEvent';
 
 	/**
 	 * Model
@@ -48,11 +73,9 @@
 	 * View
 	 */
 	var CheckboxView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.checkbox',
+		componentClassName : classes.events.main,
 
-		events : {
-			'click.checkbox' : '_handleClickEvent'
-		},
+		events : checkboxViewEvents,
 
 		initialize : function() {
 			var model = this.model;
@@ -81,11 +104,11 @@
 		},
 
 		_handleDisabledChange : function() {
-			this.$el.toggleClass('disabled', this.model.isDisabled());
+			this.$el.toggleClass(classes.ui.disabled, this.model.isDisabled());
 		},
 
 		_handleCheckedChange : function() {
-			this.$el.toggleClass('checked', this.model.isChecked());
+			this.$el.toggleClass(classes.ui.checked, this.model.isChecked());
 		}
 	});
 
@@ -121,7 +144,7 @@
 		},
 
 		_handleCheckedChange : function() {
-			this.trigger('cbx:change:checked', this, this.model.getChecked());
+			this.trigger(classes.triggers.changeChecked, this, this.model.getChecked());
 		},
 
 		/**

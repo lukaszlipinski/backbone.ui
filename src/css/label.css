@@ -14,7 +14,7 @@
     display:inline;
 }
 
-.label.disabled {
+.label.ui-lbl-disabled {
     color:#898989;
 	cursor:default;
 	 -moz-user-select: -moz-none;

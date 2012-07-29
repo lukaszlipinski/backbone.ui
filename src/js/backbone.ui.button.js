@@ -20,12 +20,41 @@
  * - btn:click:even   triggered only 'even' times (state = true)
  * - btn:click:odd    triggered only 'odd' times (state = false)
  *
- * Css classes:
+ * Component Internal CSS Classes:
  * - .btn-caption    determinates position of the caption
+ *
+ * Component External CSS Classes:
+ * - disabled
+ * - active
  */
 
 (function(Backbone, _, $) {
 	"use strict";
+
+	var classes = {
+		events : {
+			main : '.button'
+		},
+
+		triggers : {
+			click : 'btn:click',
+			clickEven : 'btn:click:even',
+			clickOdd : 'btn:click:odd'
+		},
+
+		ui : {
+			disabled : 'ui-btn-disabled',
+			active : 'ui-btn-active'
+		},
+
+		js : {
+			caption : '.js-btn-caption'
+		}
+	};
+
+	var buttonViewEvents = {};
+		buttonViewEvents['click' + classes.events.main] = '_handleClickEvent';
+		buttonViewEvents['touchend' + classes.events.main] = '_handleClickEvent';
 
 	/**
 	 * Model
@@ -74,13 +103,10 @@
 	 * View
 	 */
 	var ButtonView = Backbone.UI.ComponentView.extend({
-		componentClassName : '.button',
+		componentClassName : classes.events.main,
 		$caption : null,
 
-		events : {
-			'click.button' : '_handleClickEvent',
-			'touchend.button' : '_handleClickEvent'
-		},
+		events : buttonViewEvents,
 
 		initialize : function() {
 			var model = this.model;
@@ -94,7 +120,7 @@
 			this.template = this.getTemplate();
 
 			//Prepare elements
-			this.$caption = this.$el.find('.btn-caption');
+			this.$caption = this.$el.find(classes.js.caption);
 
 			this.render();
 		},
@@ -121,11 +147,11 @@
 		},
 
 		_handleDisabledChange : function() {
-			this.$el.toggleClass('disabled', this.model.isDisabled());
+			this.$el.toggleClass(classes.ui.disabled, this.model.isDisabled());
 		},
 
 		_handleStateChange : function() {
-			this.$el.toggleClass("active", this.model.getState());
+			this.$el.toggleClass(classes.ui.active, this.model.getState());
 		}
 	});
 
@@ -155,10 +181,10 @@
 			}
 
 			//Thigger common event
-			this.trigger('btn:click', this);
+			this.trigger(classes.triggers.click, this);
 
 			if (model.isToggled()) {
-				this.trigger("btn:click:" + (model.getState() ? "even" : "odd"), this);
+				this.trigger(model.getState() ? classes.triggers.clickEven : classes.triggers.clickOdd, this);
 
 				model.toggleState();
 			}

@@ -31,6 +31,23 @@
 	color:white;
 }
 
+.textbox .empty-message {
+	display:none;
+	position: absolute;
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+}
+
+.textbox.txt-empty input {
+	display:none;
+}
+
+.textbox.txt-empty .empty-message {
+	display: block;
+}
+
 .textbox.disabled {
     background-color: #363636;
     color:#898989;
