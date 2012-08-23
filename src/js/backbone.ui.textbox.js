@@ -25,7 +25,8 @@
 		ui : {
 			empty : 'ui-txt-empty',
 			clear : 'ui-txt-clear',
-			disabled : 'ui-txt-disabled'
+			disabled : 'ui-txt-disabled',
+			error : 'ui-txt-error'
 		},
 
 		js : {
@@ -52,7 +53,7 @@
 
 	var TextboxModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
-			value : '',
+			value : null,
 			type : 'text',
 			disabled : false,
 			tabIndex : 1,
@@ -61,13 +62,46 @@
 			clearButton : false,
 			live : false,
 			invalidMessage : '',
-			_error : false,
-			//type 'custom'
-			regexp : /(.*)/g,
+			regexp : null,
+
+			error : false,
 
 			//type 'number'
 			min : 0,
 			max : 10
+		},
+
+		validate : function(attr) {
+			var value = attr.value, type = this.getType(),
+				max, min, regexp;
+
+			if (type === 'text') {
+				regexp = this.getRegExp();
+
+				if (regexp) {
+					if (!new RegExp(regexp).test(value)) {
+						return {msg : "Value didn't match regexp", value : value, suggested : ''};
+					}
+				}
+			}
+			else if (type === 'number') {
+				value = parseInt(value, 10) || 0;
+				max = this.getMax();
+				min = this.getMin();
+
+				if (value > max) {
+					return {msg : "Value is too big", value : value, suggested : max};
+				}
+
+				if (value < min) {
+					return {msg : "Value is too small", value : value, suggested : min};
+				}
+			}
+			else {
+				throw "Unsupported Backbone.UI.Textbox component type: " + type;
+			}
+
+			this.setError(false);
 		},
 
 		getMax : function() {
@@ -99,7 +133,9 @@
 		},
 
 		isEmpty : function() {
-			return this.getValue() === '';
+			var value = this.getValue();
+
+			return value === null || value === '';
 		},
 
 		getType : function() {
@@ -114,54 +150,10 @@
 			return this.get('value');
 		},
 
-		setErrorFlag : function(value) {
-			this.set('_error', value);
-		},
+		setValue : function(value, props) {
+			props = props || {};
 
-		setValue : function(value) {
-			var type = this.getType(),
-				max, min, correctMistakes = this.correctMistakes();
-
-			if (type === 'text') {
-				this.set('value', value);
-				this.setErrorFlag(false);
-			}
-			else if (type === 'number') {
-				value = parseInt(value, 10) || 0;
-				max = this.getMax(); min = this.getMin();
-
-				if (value > max) {
-					if (correctMistakes) {
-						this.setValue(max);
-					}
-					else {
-						this.setErrorFlag(true);
-					}
-				}
-
-				if (value < min) {
-					if (correctMistakes) {
-						this.setValue(min);
-						this.setErrorFlag(false);
-					}
-					else {
-						this.setErrorFlag(true);
-					}
-				}
-			}
-			else if (type === 'custom') {
-				if (!(new RegExp(this.getRegExp()).test(value))) {
-					if (correctMistakes) {
-						this.setValue('');
-					}
-					else {
-						this.setErrorFlag(true);
-					}
-				}
-			}
-			else {
-				throw "Unsupported Backbone.UI.Textbox component type: " + type;
-			}
+			this.set({value : value}, {silent : props.silent});
 		},
 
 		getPreviousValue : function() {
@@ -182,6 +174,14 @@
 
 		getTabIndex : function() {
 			return this.get('tabIndex');
+		},
+
+		isError : function() {
+			return this.get('error');
+		},
+
+		setError : function(value) {
+			this.set({error : value}, {silent : true});
 		}
 	});
 
@@ -229,10 +229,14 @@
 			//Apply default settings on the HTML nodes
 			this._handleDisabledChange();
 			this.checkForEmptyMessage();
+			this.checkForClearButton();
+			this.checkForErrorMessage();
 		},
 
 		checkForEmptyMessage : function() {
-			this[this.model.isEmpty() ? 'showEmptyMessage' : 'hideEmptyMessage']();
+			var model = this.model;
+
+			this[model.isEmpty() && !model.isError() ? 'showEmptyMessage' : 'hideEmptyMessage']();
 		},
 
 		showEmptyMessage : function() {
@@ -264,6 +268,11 @@
 
 			this.checkForEmptyMessage();
 			this.checkForClearButton();
+			this.checkForErrorMessage();
+		},
+
+		checkForErrorMessage : function() {
+			this.$el.toggleClass(classes.ui.error, this.model.isError());
 		},
 
 		_handleDisabledChange : function() {
@@ -347,6 +356,7 @@
 
 			//Events
 			this.model.on('change:value', this._handleValueChange, this);
+			this.model.on('error', this._handleErrorEvent, this);
 		},
 
 		_handleValueChange : function() {
@@ -382,6 +392,22 @@
 
 		_handleLiveTyping : function(value) {
 			this.model.setValue(value);
+		},
+
+		_handleErrorEvent : function(model, error) {
+			//Correct mistake and there is no longer any error
+			console.log("error handler ctrl");
+			if (model.correctMistakes()) {
+				model.setValue(error.suggested, {silent : true});
+			}
+			else {
+				//Set error to 'true' and let user correct form
+				console.log("set error true", model);
+				model.setError(true);
+			}
+
+			//This is kind of workaround
+			this.view._handleValueChange();
 		},
 
 		setValue : function(value) {
