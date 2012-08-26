@@ -1,6 +1,6 @@
 .textbox {
     position:relative;
-    overflow:hidden;
+    overflow:visible;
     height:24px;
     display:inline-block;
     vertical-align: middle;
@@ -58,6 +58,21 @@
 }
 
 .textbox.ui-txt-empty .empty-message {
+	display: block;
+}
+
+.textbox .error-message {
+	position: absolute;
+	left:0;
+	bottom:-20px;
+	background-color: red;
+	color:white;
+	height:20px;
+	width:200px;
+	display:none;
+}
+
+.textbox.ui-txt-error .error-message {
 	display: block;
 }
 

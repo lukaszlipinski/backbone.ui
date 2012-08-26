@@ -1,12 +1,5 @@
 /*globals Backbone, _, jQuery */
 
-
-/**
- *
- * .empty
- * .disabled
- *
- */
 (function(Backbone, _, $) {
 	"use strict";
 
@@ -32,7 +25,8 @@
 		js : {
 			input : '.js-txt-input',
 			empty : '.js-txt-empty',
-			clear : '.js-txt-clear'
+			clear : '.js-txt-clear',
+			error : '.js-txt-error'
 		}
 	};
 
@@ -43,13 +37,6 @@
 		textboxViewEvents['blur' + classes.events.main + ' ' + classes.js.input] = '_handleInputBlurEvent';
 		textboxViewEvents['click' + classes.events.main + ' ' + classes.js.empty] = '_handleEmptyMessageClickEvent';
 		textboxViewEvents['click' + classes.events.main + ' ' + classes.js.clear] = '_handleClearButtonClickEvent';
-
-	/*
-
-	focus : false,
-	selection : false,
-	selection_details : null,
-	 */
 
 	var TextboxModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
@@ -71,117 +58,117 @@
 			max : 10
 		},
 
-		validate : function(attr) {
-			var value = attr.value, type = this.getType(),
-				max, min, regexp;
+		initialize : function() {
 
-			if (type === 'text') {
-				regexp = this.getRegExp();
-
-				if (regexp) {
-					if (!new RegExp(regexp).test(value)) {
-						return {msg : "Value didn't match regexp", value : value, suggested : ''};
-					}
-				}
-			}
-			else if (type === 'number') {
-				value = parseInt(value, 10) || 0;
-				max = this.getMax();
-				min = this.getMin();
-
-				if (value > max) {
-					return {msg : "Value is too big", value : value, suggested : max};
-				}
-
-				if (value < min) {
-					return {msg : "Value is too small", value : value, suggested : min};
-				}
-			}
-			else {
-				throw "Unsupported Backbone.UI.Textbox component type: " + type;
-			}
-
-			this.setError(false);
 		},
 
-		getMax : function() {
-			return this.get('max');
+		/**
+		 * Returns tabindex specified by developer
+		 */
+		getTabIndex : function() {
+			return this.get('tabIndex');
 		},
 
-		setMax : function(value) {
-			this.set('max', value);
+		/**
+		 * Returns information which is displayed when there is no value
+		 * specified in component
+		 */
+		getEmptyMessage : function() {
+			return this.get('emptyMessage');
 		},
 
-		getMin : function() {
-			return this.get('min');
+		/**
+		 * Returns value of the component
+		 */
+		getValue : function() {
+			return this.get('value');
 		},
 
-		setMin : function(value) {
-			this.set('min', value);
+		/**
+		 * Returns value which was in the component before the last
+		 * one has been specified
+		 */
+		getPreviousValue : function() {
+			return this.previous('value');
 		},
 
 		getRegExp : function() {
 			return this.get('regexp');
 		},
 
-		correctMistakes : function() {
-			return !this.get('invalidMessage');
+		getType : function() {
+			return this.get('type');
 		},
 
-		getInvalidMessage : function() {
-			return this.get('invalidMessage');
+		getError : function(value) {
+			return this.get('error');
 		},
 
+		setError : function(value) {
+			this.set({error : value});
+		},
+
+		setValue : function(value, props) {
+			props = props || {};
+
+			/*var type = this.getType(), max, min, regexp;
+
+			if (!props.force) {
+				if (type === 'text') {
+					regexp = this.getRegExp();
+
+					if (regexp) {
+						if (!new RegExp(regexp).test(value)) {
+							return this.setError({msg : "Value doesn't match regexp", value : value, suggestion : ''});
+						}
+					}
+				}
+				else if (type === 'number') {
+					value = parseInt(value, 10) || 0;
+					max = this.getMax();
+					min = this.getMin();
+
+					if (value > max) {
+						return this.setError({msg : "Value is too big", value : value, suggestion : max});
+					}
+
+					if (value < min) {
+						return this.setError({msg : "Value is too small", value : value, suggestion : min});
+					}
+				}
+				else {
+					throw "Unsupported Backbone.UI.Textbox component type: " + type;
+				}
+			}
+
+			this.setError(false);*/
+			this.set({value : value}, {silent : props.silent});
+
+			/*return true;*/
+		},
+
+		/**
+		 * Determinates if clear button should be visible or not
+		 */
+		showClearButton : function() {
+			return this.get('clearButton');
+		},
+
+		/**
+		 * Determinates if value is set
+		 */
 		isEmpty : function() {
 			var value = this.getValue();
 
 			return value === null || value === '';
 		},
 
-		getType : function() {
-			return this.get('type');
-		},
-
-		setType : function(value) {
-			this.set('type', value);
-		},
-
-		getValue : function() {
-			return this.get('value');
-		},
-
-		setValue : function(value, props) {
-			props = props || {};
-
-			this.set({value : value}, {silent : props.silent});
-		},
-
-		getPreviousValue : function() {
-			return this.previous('value');
-		},
-
-		getEmptyMessage : function() {
-			return this.get('emptyMessage');
-		},
-
-		showClearButton : function() {
-			return this.get('clearButton');
-		},
-
-		liveTypingEnabled : function() {
-			return this.get('live');
-		},
-
-		getTabIndex : function() {
-			return this.get('tabIndex');
-		},
-
 		isError : function() {
 			return this.get('error');
 		},
 
-		setError : function(value) {
-			this.set({error : value}, {silent : true});
+		isLiveTypingEnabled : function() {
+			return this.get('live');
 		}
 	});
 
@@ -195,6 +182,7 @@
 		$input : null,
 		$empty : null,
 		$clear : null,
+		$error : null,
 
 		initialize : function() {
 			var model = this.model;
@@ -203,6 +191,7 @@
 
 			model.on('change:value', this._handleValueChange, this);
 			model.on('change:disabled', this._handleDisabledChange, this);
+			model.on('change:error', this._handleErrorChange, this);
 
 			this.template = this.getTemplate();
 
@@ -221,6 +210,7 @@
 			this.$input = this.$el.find(classes.js.input);
 			this.$empty = this.$el.find(classes.js.empty);
 			this.$clear = this.$el.find(classes.js.clear);
+			this.$error = this.$el.find(classes.js.error);
 
 			if (!this.$input.is('input')) {
 				throw "Skin should contain 'input' HTMLElement.";
@@ -230,7 +220,7 @@
 			this._handleDisabledChange();
 			this.checkForEmptyMessage();
 			this.checkForClearButton();
-			this.checkForErrorMessage();
+			this._handleErrorChange();
 		},
 
 		checkForEmptyMessage : function() {
@@ -250,7 +240,12 @@
 		checkForClearButton : function() {
 			var model = this.model;
 
-			this[model.showClearButton() && !model.isEmpty() ? 'showClearButton' : 'hideClearButton']();
+			if (model.showClearButton() && !model.isEmpty()) {
+				this.showClearButton();
+			}
+			else {
+				this.hideClearButton();
+			}
 		},
 
 		showClearButton : function() {
@@ -261,18 +256,42 @@
 			this.$el.removeClass(classes.ui.clear);
 		},
 
-		_handleValueChange : function() {
-			var model = this.model;
+		/**
+		 * EVENTS
+		 */
+		_handleErrorChange : function() {
+			var model = this.model, error = model.getError();
 
-			this.$input.val(model.getValue());
-
-			this.checkForEmptyMessage();
-			this.checkForClearButton();
-			this.checkForErrorMessage();
+			if (model.isError()) {
+				this.$error.html(error.msg);
+				this.$el.addClass(classes.ui.error);
+			}
+			else {
+				this.$el.removeClass(classes.ui.error);
+			}
 		},
 
-		checkForErrorMessage : function() {
-			this.$el.toggleClass(classes.ui.error, this.model.isError());
+		_handleInputKeyUpEvent : function() {
+			var model = this.model,
+				_self = this;
+
+			if (model.isDisabled()) {
+				return;
+			}
+
+			if (model.isLiveTypingEnabled()) {
+				window.clearTimeout(this.liveTypingTimer);
+
+				this.liveTypingTimer = window.setTimeout(function() {
+					_self.controller._handleLiveTyping(_self.$input.val());
+				}, 250);
+			}
+		},
+
+		_handleInputBlurEvent : function() {
+			this.controller._handleInputBlurEvent(this.$input.val());
+
+			this.checkForEmptyMessage();
 		},
 
 		_handleDisabledChange : function() {
@@ -289,20 +308,12 @@
 		},
 
 		_handleEmptyMessageClickEvent : function() {
+			if (this.model.isDisabled()) {
+				return;
+			}
+
 			this.hideEmptyMessage();
 			this.$input.focus();
-		},
-
-		_handleClearButtonClickEvent : function() {
-			this.hideClearButton();
-
-			this.controller._handleClearButtonClickEvent();
-		},
-
-		_handleInputBlurEvent : function() {
-			this.controller._handleInputBlurEvent(this.$input.val());
-
-			this.checkForEmptyMessage();
 		},
 
 		_handleInputFocusEvent : function() {
@@ -317,25 +328,25 @@
 			this.controller.trigger(classes.triggers.focused, this.controller);
 		},
 
-		_handleInputKeyUpEvent : function() {
-			var model = this.model,
-				_self = this;
+		_handleValueChange : function() {
+			var model = this.model;
 
-			if (model.isDisabled()) {
-				return;
-			}
+			this.$input.val(model.getValue()).focus();
 
-			if (model.liveTypingEnabled()) {
-				window.clearTimeout(this.liveTypingTimer);
-
-				this.liveTypingTimer = window.setTimeout(function() {
-					_self.controller._handleLiveTyping(_self.$input.val());
-				}, 250);
-			}
+			this.checkForEmptyMessage();
+			this.checkForClearButton();
+			this._handleErrorChange();
 		},
 
 		_handleInputKeyPressEvent : function(e) {
 			this.controller._handleInputKeyPressEvent(e.keyCode, this.$input.val());
+		},
+
+		_handleClearButtonClickEvent : function() {
+			this.hideClearButton();
+			this.$input.val('');
+
+			this.controller._handleClearButtonClickEvent();
 		}
 	});
 
@@ -356,7 +367,6 @@
 
 			//Events
 			this.model.on('change:value', this._handleValueChange, this);
-			this.model.on('error', this._handleErrorEvent, this);
 		},
 
 		_handleValueChange : function() {
@@ -373,6 +383,7 @@
 			//Enter
 			if (keyCode === ENTER) {
 				model.setValue(value);
+				console.log("Current value in the model: ", model.getValue());
 			}
 		},
 
@@ -392,22 +403,6 @@
 
 		_handleLiveTyping : function(value) {
 			this.model.setValue(value);
-		},
-
-		_handleErrorEvent : function(model, error) {
-			//Correct mistake and there is no longer any error
-			console.log("error handler ctrl");
-			if (model.correctMistakes()) {
-				model.setValue(error.suggested, {silent : true});
-			}
-			else {
-				//Set error to 'true' and let user correct form
-				console.log("set error true", model);
-				model.setError(true);
-			}
-
-			//This is kind of workaround
-			this.view._handleValueChange();
 		},
 
 		setValue : function(value) {
