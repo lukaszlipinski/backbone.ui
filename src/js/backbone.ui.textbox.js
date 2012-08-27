@@ -11,8 +11,9 @@
 		},
 
 		triggers : {
-			focused : 'txt:focused',
-			changeValue : 'txt:change:value'
+			focus : 'txt:focus',
+			changeValue : 'txt:change:value',
+			error : 'txt:error'
 		},
 
 		ui : {
@@ -104,6 +105,22 @@
 			return this.get('error');
 		},
 
+		getMax : function() {
+			return this.get('max');
+		},
+
+		getMin : function() {
+			return this.get('min');
+		},
+
+		setMax : function(value) {
+			this.set('max', value);
+		},
+
+		setMin : function(value) {
+			this.set('min', value);
+		},
+
 		setError : function(value) {
 			this.set({error : value});
 		},
@@ -111,29 +128,31 @@
 		setValue : function(value, props) {
 			props = props || {};
 
-			/*var type = this.getType(), max, min, regexp;
+			var type = this.getType(), max, min, regexp;
 
 			if (!props.force) {
 				if (type === 'text') {
 					regexp = this.getRegExp();
 
-					if (regexp) {
-						if (!new RegExp(regexp).test(value)) {
-							return this.setError({msg : "Value doesn't match regexp", value : value, suggestion : ''});
-						}
+					if (regexp && !new RegExp(regexp).test(value)) {
+						return this.setError({msg : "Value doesn't match regexp", value : value, suggestion : '', code : 1});
 					}
 				}
 				else if (type === 'number') {
-					value = parseInt(value, 10) || 0;
+					if (isNaN(parseInt(value, 10))) {
+						return false;
+					}
+
+					value = parseInt(value, 10);
 					max = this.getMax();
 					min = this.getMin();
 
 					if (value > max) {
-						return this.setError({msg : "Value is too big", value : value, suggestion : max});
+						return this.setError({msg : "Value is too big", value : value, suggestion : max, code : 11});
 					}
 
 					if (value < min) {
-						return this.setError({msg : "Value is too small", value : value, suggestion : min});
+						return this.setError({msg : "Value is too small", value : value, suggestion : min, code : 12});
 					}
 				}
 				else {
@@ -141,10 +160,10 @@
 				}
 			}
 
-			this.setError(false);*/
+			this.setError(false);
 			this.set({value : value}, {silent : props.silent});
 
-			/*return true;*/
+			return true;
 		},
 
 		/**
@@ -216,11 +235,17 @@
 				throw "Skin should contain 'input' HTMLElement.";
 			}
 
+			//model.setValue(value);
 			//Apply default settings on the HTML nodes
-			this._handleDisabledChange();
+			this.checkForDisable();
+
 			this.checkForEmptyMessage();
 			this.checkForClearButton();
-			this._handleErrorChange();
+			this.checkForError();
+		},
+
+		checkForDisable : function() {
+			this._handleDisabledChange();
 		},
 
 		checkForEmptyMessage : function() {
@@ -240,12 +265,16 @@
 		checkForClearButton : function() {
 			var model = this.model;
 
-			if (model.showClearButton() && !model.isEmpty()) {
+			if (model.showClearButton() && !this._isEmptyInput() && (!model.isEmpty() || model.isError())) {
 				this.showClearButton();
 			}
 			else {
 				this.hideClearButton();
 			}
+		},
+
+		checkForError : function() {
+			this._handleErrorChange();
 		},
 
 		showClearButton : function() {
@@ -256,15 +285,23 @@
 			this.$el.removeClass(classes.ui.clear);
 		},
 
+		_isEmptyInput : function() {
+			return this.$input.val() === '';
+		},
+
 		/**
 		 * EVENTS
 		 */
 		_handleErrorChange : function() {
 			var model = this.model, error = model.getError();
 
-			if (model.isError()) {
+			this.checkForClearButton();
+
+			if (model.isError() && !this._isEmptyInput()) {
 				this.$error.html(error.msg);
 				this.$el.addClass(classes.ui.error);
+
+				this.controller.trigger(classes.triggers.error, error);
 			}
 			else {
 				this.$el.removeClass(classes.ui.error);
@@ -289,7 +326,9 @@
 		},
 
 		_handleInputBlurEvent : function() {
-			this.controller._handleInputBlurEvent(this.$input.val());
+			if (!this._isEmptyInput()) {
+				this.controller._handleInputBlurEvent(this.$input.val());
+			}
 
 			this.checkForEmptyMessage();
 		},
@@ -325,7 +364,7 @@
 
 			this.hideEmptyMessage();
 
-			this.controller.trigger(classes.triggers.focused, this.controller);
+			this.controller.trigger(classes.triggers.focus, this.controller);
 		},
 
 		_handleValueChange : function() {
@@ -335,7 +374,7 @@
 
 			this.checkForEmptyMessage();
 			this.checkForClearButton();
-			this._handleErrorChange();
+			this.checkForError();
 		},
 
 		_handleInputKeyPressEvent : function(e) {
@@ -344,7 +383,7 @@
 
 		_handleClearButtonClickEvent : function() {
 			this.hideClearButton();
-			this.$input.val('');
+			this.$input.val('').focus();
 
 			this.controller._handleClearButtonClickEvent();
 		}
@@ -383,7 +422,6 @@
 			//Enter
 			if (keyCode === ENTER) {
 				model.setValue(value);
-				console.log("Current value in the model: ", model.getValue());
 			}
 		},
 
@@ -398,7 +436,10 @@
 		},
 
 		_handleClearButtonClickEvent : function() {
-			this.model.setValue('');
+			var model = this.model;
+
+			model.setError(false);
+			model.setValue('', {force : true});
 		},
 
 		_handleLiveTyping : function(value) {
