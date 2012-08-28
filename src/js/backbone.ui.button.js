@@ -1,32 +1,40 @@
 /*globals Backbone, _, jQuery */
 
 /**
- * Extends standard functionality of the link or button elements.
+ * Backbone.UI Button Component
  *
+ * @module Backbone.UI
+ * @submodule Backbone.UI.Button
+ * @namespace Backbone.UI
+ *
+ * Extends standard functionality of link or button elements.
  *
  * @param settings
  *     @property {String} caption     a string which is displayed in the button
  *     @property {Boolean} disabled   determinates if component reacts on user's actions
- *     @property {String} template    determinates template source
+ *     @property {String} template    template string
  *     @property {Boolean} toggle     when this property is true, 'state' changes
- *                                 every time when button is clicked additionaly
- *                                 special events are triggered
- *     @property {Boolean} state      determinates the current state of the button.
- *                                 As default is 'true' (firing events starts
- *                                 with 'event') and doesn't change if the
- *                                 'toggle' property is not set to 'true'
+ *								      every time when button is clicked additionaly
+ *                                    special events are triggered
+ *     @property {Boolean} state      determinates the current state of button,
+ *                                    as default is 'true' and doesn't change if
+ *                                    the 'toggle' property is not set to true
  *
  * Triggered events:
  * - btn:click        triggered every time when button is clicked
  * - btn:click:even   triggered only 'even' times (state = true)
  * - btn:click:odd    triggered only 'odd' times (state = false)
  *
- * Component Internal CSS Classes:
- * - .btn-caption    determinates position of the caption
+ * CSS Classes:
+ * - ui-btn-disabled   applied on root node when component is disabled
+ * - ui-btn-active     applied on root node when 'state' property is set to true
  *
- * Component External CSS Classes:
- * - disabled
- * - active
+ * JS Classes:
+ * - js-btn-caption    determinates position of buttons's caption node
+  *
+ * @uses Backbone
+ * @uses _
+ * @uses $
  */
 
 (function(Backbone, _, $) {
@@ -58,7 +66,9 @@
 		buttonViewEvents['touchend' + classes.events.main] = '_handleClickEvent';
 
 	/**
-	 * Model
+	 * Button Model
+	 *
+	 * @extends Backbone.UI.ComponentModel
 	 */
 	var ButtonModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
@@ -69,39 +79,75 @@
 			state : true
 		},
 
+		/**
+		 * Sets state
+		 *
+		 * @method setState
+		 *
+		 * @param {Boolean} value
+		 */
 		setState : function(value) {
 			this.set('state', value);
-
-			return this;
 		},
 
+		/**
+		 * Gets state
+		 *
+		 * @method getState
+		 *
+		 * @return {Boolean}
+		 */
 		getState : function() {
 			return this.get('state');
 		},
 
+		/**
+		 * Toggles state
+		 *
+		 * @method toggleState
+		 */
 		toggleState : function() {
 			this.set('state', !this.get('state'));
-
-			return this;
 		},
 
-		isToggled : function() {
+		/**
+		 * Determinates whether button is togglable or not
+		 *
+		 * @method isTogglable
+		 *
+		 * @return {Boolean}
+		 */
+		isTogglable : function() {
 			return this.get('toggle');
 		},
 
+		/**
+		 * Sets caption of button
+		 *
+		 * @method setCaption
+		 *
+		 * @param {String} value
+		 */
 		setCaption : function(value) {
 			this.set('caption', value);
-
-			return this;
 		},
 
+		/**
+		 * Gets button's caption
+		 *
+		 * @method getCaption
+		 *
+		 * @return {String}
+		 */
 		getCaption : function() {
 			return this.get('caption');
 		}
 	});
 
 	/**
-	 * View
+	 * Button View
+	 *
+	 * @extends Backbone.UI.ComponentView
 	 */
 	var ButtonView = Backbone.UI.ComponentView.extend({
 		componentClassName : classes.events.main,
@@ -132,6 +178,9 @@
 			this._handleStateChange();
 		},
 
+		/**
+		 * Event handlers
+		 */
 		_handleCaptionChange : function() {
 			var model = this.model, $caption = this.$caption;
 
@@ -157,9 +206,16 @@
 	});
 
 	/**
-	 * Controller
+	 * Button Controller
+	 *
+	 * @class Backbone.UI.Button
+	 * @extends Backbone.UI.ComponentController
 	 */
 	Backbone.UI.Button = Backbone.UI.ComponentController.extend({
+		/**
+		 * @method initialize
+		 * @private
+		 */
 		initialize : function() {
 			var settings = this.options.settings;
 
@@ -174,6 +230,10 @@
 			});
 		},
 
+		/**
+		 * @method _handleClickEvent
+		 * @private
+		 */
 		_handleClickEvent : function() {
 			var model = this.model;
 
@@ -184,7 +244,7 @@
 			//Thigger common event
 			this.trigger(classes.triggers.click, this);
 
-			if (model.isToggled()) {
+			if (model.isTogglable()) {
 				this.trigger(model.getState() ? classes.triggers.clickEven : classes.triggers.clickOdd, this);
 
 				model.toggleState();
@@ -192,15 +252,13 @@
 		},
 
 		/**
-		 * Public methods
-		 */
-
-		/**
-		 * Sets new caption to the button
+		 * Sets caption of button
 		 *
-		 * @param {String}   new caption string
+		 * @method setCaption
+		 * @chainable
 		 *
-		 * @return {Object} Backbone.UI.Button
+		 * @param {String} value
+		 * @return Backbone.UI.Button Component Object
 		 */
 		setCaption : function(value) {
 			this.model.setCaption(value);
@@ -209,7 +267,9 @@
 		},
 
 		/**
-		 * Returns current state of the button
+		 * Gets state
+		 *
+		 * @method getState
 		 *
 		 * @return {Boolean}
 		 */
@@ -218,11 +278,13 @@
 		},
 
 		/**
-		 * Sets button's state
+		 * Sets state
 		 *
-		 * @param {Boolean} value    new state
+		 * @method setState
+		 * @chainable
 		 *
-		 * @return {Object} Backbone.UI.Button
+		 * @param {Boolean} value
+		 * @return Backbone.UI.Button Component Object
 		 */
 		setState : function(value) {
 			this.model.setState(value);
