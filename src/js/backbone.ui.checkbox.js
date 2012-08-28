@@ -4,10 +4,10 @@
  * Extends standard functionality of input[type='check']
  *
  * @param settings
- *     @param {String} caption     derteminates checkbox caption
- *     @param {Boolean} disabled   determinates if component reacts on user's actions or not
- *     @param {String} template    determinates template source
- *     @param {Boolean} checked    determinates if checkbox is checked or not
+ *     @property {String} caption     derteminates checkbox caption
+ *     @property {Boolean} disabled   determinates if component reacts on user's actions or not
+ *     @property {String} template    determinates template source
+ *     @property {Boolean} checked    determinates if checkbox is checked or not
  *
  * Triggered events:
  * - cbx:change:checked    fired when 'checked' state is changed

@@ -7,17 +7,17 @@
  * be limited by 'max' and 'min' settings
  *
  * @param params
- *    {Number} value       value of the spinner
- *    {Number} step        determinates step which will be take after click on button
- *    {Number} max         determinates maximal value which can be stored in the component
- *    {Number} min         determinates minimal value which can be stored in the component
- *    {Boolean} disabled   determinates if component reacts on user's actions
- *    {String} type        determinates how spinner will interprete values
+ *    @property {Number} value       value of the spinner
+ *    @property {Number} step        determinates step which will be take after click on button
+ *    @property {Number} max         determinates maximal value which can be stored in the component
+ *    @property {Number} min         determinates minimal value which can be stored in the component
+ *    @property {Boolean} disabled   determinates if component reacts on user's actions
+ *    @property {String} type        determinates how spinner will interprete values
  *	      Possible values:
  *        - 'integer'   treats all values as intergers
  *        - 'float'     treats all values as floats
- *    {String} template    determinates template source
- *	  {Number} tabIndex    determinates the HTML tabindex attribute
+ *    @property {String} template    determinates template source
+ *	  @property {Number} tabIndex    determinates the HTML tabindex attribute
  *
  * Triggered events:
  * - sp:change:value    triggered when value was changed
@@ -25,9 +25,12 @@
  * - sp:change:min      triggered when min setting is changed
  *
  * Css classes:
- * - .sp-input      input html node
- * - .sp-btn-up     button up html node
- * - .sp-btn-down   button down html node
+ * - ui-sp-disabled   applied when component is disabled
+ *
+ * JS classes
+ * - js-sp-input      input html node
+ * - js-sp-btn-up     button up html node
+ * - js-sp-btn-down   button down html node
  */
 
 (function(Backbone, _, $) {

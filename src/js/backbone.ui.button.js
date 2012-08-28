@@ -3,14 +3,15 @@
 /**
  * Extends standard functionality of the link or button elements.
  *
+ *
  * @param settings
- *     @param {String} caption     a string which is displayed in the button
- *     @param {Boolean} disabled   determinates if component reacts on user's actions
- *     @param {String} template    determinates template source
- *     @param {Boolean} toggle     when this property is true, 'state' changes
+ *     @property {String} caption     a string which is displayed in the button
+ *     @property {Boolean} disabled   determinates if component reacts on user's actions
+ *     @property {String} template    determinates template source
+ *     @property {Boolean} toggle     when this property is true, 'state' changes
  *                                 every time when button is clicked additionaly
  *                                 special events are triggered
- *     @param {Boolean} state      determinates the current state of the button.
+ *     @property {Boolean} state      determinates the current state of the button.
  *                                 As default is 'true' (firing events starts
  *                                 with 'event') and doesn't change if the
  *                                 'toggle' property is not set to 'true'

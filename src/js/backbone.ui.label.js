@@ -1,13 +1,24 @@
 /*globals Backbone, _, jQuery */
 
 /**
+ * Label Component
+ *
  * Extends standard functionality of label HTMLElement
  *
  * @param settings
- *     @param {String} caption     a string which is displayed in label
- *     @param {Boolean} disabled   determinates if component reacts on user's actions
+ *     @property {String} caption     a string which is displayed in label
+ *     @property {Boolean} disabled   determinates if component reacts on user's actions
+ *     @property {String} template    template string
+ *
+ * @module Backbone.UI
+ * @submodule Backbone.UI.Label
+ * @namespace Backbone.UI
+ * @class Label
+ *
+ * @uses Backbone
+ * @uses _
+ * @uses $
  */
-
 (function(Backbone, _, $) {
 	"use strict";
 
@@ -22,7 +33,9 @@
 	};
 
 	/**
-	 * Model
+	 * Label Model
+	 *
+	 * @extends Backbone.UI.ComponentModel
 	 */
 	var LabelModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
@@ -31,19 +44,37 @@
 			template : '#tpl_label'
 		},
 
+		/**
+		 * Sets caption of label
+		 *
+		 * @method setCaption
+		 * @param {String} value   caption string
+		 *
+		 * @return {Object} Backbone.UI.Label Component Object
+		 * @chainable
+		 */
 		setCaption : function(value) {
 			this.set('caption', value);
 
 			return this;
 		},
 
+		/**
+		 * Gets caption of label
+		 *
+		 * @method getCaption
+		 *
+		 * @return {String}
+		 */
 		getCaption : function() {
 			return this.get('caption');
 		}
 	});
 
 	/**
-	 * View
+	 * Label View
+	 *
+	 * @extends Backbone.UI.ComponentView
 	 */
 	var LabelView = Backbone.UI.ComponentView.extend({
 		componentClassName : classes.events.main,
@@ -78,9 +109,15 @@
 	});
 
 	/**
-	 * Controller
+	 * Label Controller
+	 *
+	 * @extends Backbone.UI.ComponentController
 	 */
 	Backbone.UI.Label = Backbone.UI.ComponentController.extend({
+		/**
+		 * @method initialize
+		 * @private
+		 */
 		initialize : function() {
 			var settings = this.options.settings;
 
@@ -96,15 +133,13 @@
 		},
 
 		/**
-		 * Public methods
-		 */
-
-		/**
-		 * Sets new caption to label
+		 * Sets caption of label
 		 *
-		 * @param {String}   new caption string
+		 * @method setCaption
+		 * @param {String} value   caption string
 		 *
-		 * @return {Object} Backbone.UI.Label
+		 * @return {Object} Backbone.UI.Label Component Object
+		 * @chainable
 		 */
 		setCaption : function(value) {
 			this.model.setCaption(value);
