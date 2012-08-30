@@ -31,7 +31,7 @@
  *
  * JS Classes:
  * - js-btn-caption    determinates position of buttons's caption node
-  *
+ *
  * @uses Backbone
  * @uses _
  * @uses $

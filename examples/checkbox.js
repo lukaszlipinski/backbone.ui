@@ -8,8 +8,8 @@
         settings : {
             caption : 'First checkbox'
         }
-    }).on('cbx:change:checked', function(_cbx, checked) {
-        console.log('checkbox state: ', checked);
+    }).on('cbx:change:check', function(_cbx, check) {
+        console.log('checkbox state: ', check);
     });
 
 	var checkbox2 = new Backbone.UI.Checkbox({

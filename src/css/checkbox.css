@@ -22,7 +22,7 @@
     left:0;
 }
 
-.checkbox.ui-cbx-checked .check {
+.checkbox.ui-cbx-check .check {
     border:2px solid white;
     background-color:#8dc63f;
 }
@@ -36,6 +36,6 @@
     border:2px solid #898989;
 }
 
-.checkbox.ui-cbx-disabled.ui-cbx-checked .check {
+.checkbox.ui-cbx-disabled.ui-cbx-check .check {
     background-color:#898989;
 }
