@@ -193,7 +193,20 @@
 	});
 
 	/**
-	 * Backbone.UI Button Component extends standard functionality of link or button elements.
+	 * **Description**
+	 *
+	 * Backbone.UI.Button component which extends standard functionality of link or button elements.
+	 *
+	 * **Additional information**
+	 *
+	 * CSS classes which are applied on the component depends on the state of component:
+	 *
+	 *      ui-btn-disabled   applied on root node when component is disabled
+	 *      ui-btn-active     applied on root node when 'state' property is set to true
+	 *
+	 * CSS classes which should be specified by developer:
+	 *
+	 *      js-btn-caption    determinates position of buttons's caption node
 	 *
 	 * @namespace Backbone.UI
 	 * @class Button
@@ -215,16 +228,34 @@
 	 * @uses jQuery
 	 *
 	 * @author Łukasz Lipiński
-	 */
-
-	/**
 	 *
-	 * CSS Classes:
-	 * - ui-btn-disabled   applied on root node when component is disabled
-	 * - ui-btn-active     applied on root node when 'state' property is set to true
-	 *
-	 * JS Classes:
-	 * - js-btn-caption    determinates position of buttons's caption node
+	 * @example
+	 *     <!doctype html>
+	 *	   <html lang="en">
+	 *         <head>
+     *             <script type="text/template" id="tpl_button">
+	 *                 <!--div class="button" -->
+	 *                    <div class="js-btn-caption"><%= data.caption %></div>
+	 *                 <!--/div-->
+	 *             </script>
+	 *         </head>
+	 *         <body>
+	 *              <div class="btn_example button"></div>
+     *
+	 *              <script>
+	 *				 //Component initialization
+	 *                  var button = new Backbone.UI.Button({
+     *                      el : $('.btn_example1'),
+     *                      settings : {
+     *                          caption : 'First button',
+     *                          toggle : true
+     *		                }
+     *                  }).on("btn:click", function(_btn) {
+	 *	                    console.log(_btn.getState());
+	 *                  });
+	 *              </script>
+	 *         </body>
+	 *     </html>
 	 */
 	Backbone.UI.Button = Backbone.UI.Component.extend({
 		/**
