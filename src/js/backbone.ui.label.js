@@ -1,24 +1,5 @@
 /*globals Backbone, _, jQuery */
 
-/**
- * Label Component
- *
- * Extends standard functionality of label HTMLElement
- *
- * @param settings
- *     @property {String} caption     a string which is displayed in label
- *     @property {Boolean} disabled   determinates if component reacts on user's actions
- *     @property {String} template    template string
- *
- * @module Backbone.UI
- * @submodule Backbone.UI.Label
- * @namespace Backbone.UI
- * @class Label
- *
- * @uses Backbone
- * @uses _
- * @uses $
- */
 (function(Backbone, _, $) {
 	"use strict";
 
@@ -111,9 +92,9 @@
 	/**
 	 * Label Controller
 	 *
-	 * @extends Backbone.UI.ComponentController
+	 * @extends Backbone.UI.Component
 	 */
-	Backbone.UI.Label = Backbone.UI.ComponentController.extend({
+	Backbone.UI.Label = Backbone.UI.Component.extend({
 		/**
 		 * @method initialize
 		 * @private
