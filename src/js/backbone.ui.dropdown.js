@@ -484,7 +484,7 @@
 	/**
 	 * Controller
 	 */
-	Backbone.UI.Dropdown = Backbone.UI.ComponentController.extend({
+	Backbone.UI.Dropdown = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings;
 

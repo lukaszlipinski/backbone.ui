@@ -392,7 +392,7 @@
 	/**
 	 * Controller
 	 */
-	Backbone.UI.Textbox = Backbone.UI.ComponentController.extend({
+	Backbone.UI.Textbox = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings;
 

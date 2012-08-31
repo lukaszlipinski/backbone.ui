@@ -1,24 +1,26 @@
 /*globals Backbone, _, jQuery */
 
-/**
- * Backbone UI
- *
- * Provides customizable components
- *
- * @module Backbone.UI
- * @namespace Backbone
- * @class UI
- *
- * @uses Backbone
- * @uses _
- * @uses $
- */
 (function(Backbone, _, $) {
 	"use strict";
 
 	var tabindex = 0,
-	listindex = 0;
+		listindex = 0;
 
+	/**
+	 * Backbone UI
+	 *
+	 * Provides customizable components
+	 *
+	 * @namespace Backbone
+	 * @class UI
+	 * @module Backbone
+	 * @submodule UI
+	 * @private
+	 *
+	 * @uses Backbone.js
+	 * @uses Underscore.js
+	 * @uses jQuery
+	 */
 	Backbone.UI = Backbone.UI || {
 		getNextTabIndex : function() {
 			return ++tabindex;
@@ -36,13 +38,17 @@
 	};
 
 	/**
-	 * Backbone.UI Component Model Class
-	 *
-	 * Provides basic methods for all component's models
+	 * Backbone.UI Component Model Class provides basic methods for all
+	 * component's models
 	 *
 	 * @namespace Backbone.UI
-	 * @subclass ComponentModel
+	 * @module UI
+	 * @submodule ComponentModel
+	 * @class ComponentModel
 	 * @extends Backbone.Model
+	 * @constructor
+	 *
+	 * @param settings {Object} Hash array which contains all settings
 	 */
 	Backbone.UI.ComponentModel = Backbone.Model.extend({
 		defaults : {
@@ -70,16 +76,6 @@
 		},
 
 		/**
-		 * Checks if component is enabled
-		 *
-		 * @method isEnabled
-		 * @return {Boolean}
-		 */
-		isEnabled : function() {
-			return !this.get('disabled');
-		},
-
-		/**
 		 * Disables component's interaction with users
 		 *
 		 * @method disable
@@ -100,13 +96,17 @@
 	});
 
 	/**
-	 * Backbone.UI Component View Class
-	 *
-	 * Provides basic methods for all component's views
+	 * Backbone.UI Component View Class provides basic methods for all
+	 * component's views
 	 *
 	 * @namespace Backbone.UI
-	 * @subclass ComponentView
+	 * @module UI
+	 * @submodule ComponentView
+	 * @class ComponentView
 	 * @extends Backbone.View
+	 * @constructor
+	 *
+	 * @param settings {Object} Hash array which contains all settings
 	 */
 	Backbone.UI.ComponentView = Backbone.View.extend({
 		/**
@@ -145,15 +145,19 @@
 	});
 
 	/**
-	 * Backbone.UI Component Controller Class
-	 *
-	 * Provides basic methods for all component's controllers
+	 * Backbone.UI Component Class provides basic methods for all
+	 * component's constructors
 	 *
 	 * @namespace Backbone.UI
-	 * @subclass ComponentController
+	 * @module UI
+	 * @submodule Component
+	 * @class Component
 	 * @extends Backbone.View
+	 * @constructor
+	 *
+	 * @param settings {Object} Hash array which contains all settings
 	 */
-	Backbone.UI.ComponentController = Backbone.View.extend({
+	Backbone.UI.Component = Backbone.View.extend({
 		/**
 		 * Enables component's interaction with users
 		 *

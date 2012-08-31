@@ -155,13 +155,9 @@
 	 * Checkbox Controller
 	 *
 	 * @class Backbone.UI.Checkbox
-	 * @extends Backbone.UI.ComponentController
+	 * @extends Backbone.UI.Component
 	 */
-	Backbone.UI.Checkbox = Backbone.UI.ComponentController.extend({
-		/**
-		 * @method initialize
-		 * @private
-		 */
+	Backbone.UI.Checkbox = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings;
 

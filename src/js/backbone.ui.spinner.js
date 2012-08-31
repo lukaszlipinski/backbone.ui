@@ -284,7 +284,7 @@
 	/**
 	 * Controller
 	 */
-	Backbone.UI.Spinner = Backbone.UI.ComponentController.extend({
+	Backbone.UI.Spinner = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings,
 				type = settings.type;

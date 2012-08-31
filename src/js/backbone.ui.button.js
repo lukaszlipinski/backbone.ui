@@ -1,42 +1,5 @@
 /*globals Backbone, _, jQuery */
 
-/**
- * Backbone.UI Button Component
- *
- * @module Backbone.UI
- * @submodule Backbone.UI.Button
- * @namespace Backbone.UI
- *
- * Extends standard functionality of link or button elements.
- *
- * @param settings
- *     @property {String} caption     a string which is displayed in the button
- *     @property {Boolean} disabled   determinates if component reacts on user's actions
- *     @property {String} template    template string
- *     @property {Boolean} toggle     when this property is true, 'state' changes
- *								      every time when button is clicked additionaly
- *                                    special events are triggered
- *     @property {Boolean} state      determinates the current state of button,
- *                                    as default is 'true' and doesn't change if
- *                                    the 'toggle' property is not set to true
- *
- * Triggered events:
- * - btn:click        triggered every time when button is clicked
- * - btn:click:even   triggered only 'even' times (state = true)
- * - btn:click:odd    triggered only 'odd' times (state = false)
- *
- * CSS Classes:
- * - ui-btn-disabled   applied on root node when component is disabled
- * - ui-btn-active     applied on root node when 'state' property is set to true
- *
- * JS Classes:
- * - js-btn-caption    determinates position of buttons's caption node
- *
- * @uses Backbone
- * @uses _
- * @uses $
- */
-
 (function(Backbone, _, $) {
 	"use strict";
 
@@ -205,13 +168,7 @@
 		}
 	});
 
-	/**
-	 * Button Controller
-	 *
-	 * @class Backbone.UI.Button
-	 * @extends Backbone.UI.ComponentController
-	 */
-	Backbone.UI.Button = Backbone.UI.ComponentController.extend({
+	Backbone.UI.Button = Backbone.UI.Component.extend({
 		/**
 		 * @method initialize
 		 * @private
