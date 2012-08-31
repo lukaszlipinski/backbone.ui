@@ -9,8 +9,26 @@
 		},
 
 		triggers : {
+			/**
+			 * Triggered every time when button is clicked
+			 *
+			 * @event btn:click
+			 * @param {Object} Backbone.UI.Button
+			 */
 			click : 'btn:click',
+			/**
+			 * Triggered only when 'state' is equal true
+			 *
+			 * @event btn:click:even
+			 * @param {Object} Backbone.UI.Button
+			 */
 			clickEven : 'btn:click:even',
+			/**
+			 * Triggered only when 'state' is equal false
+			 *
+			 * @event btn:click:odd
+			 * @param {Object} Backbone.UI.Button
+			 */
 			clickOdd : 'btn:click:odd'
 		},
 
@@ -46,6 +64,7 @@
 		 * Sets state
 		 *
 		 * @method setState
+		 * @protected
 		 *
 		 * @param {Boolean} value
 		 */
@@ -57,6 +76,7 @@
 		 * Gets state
 		 *
 		 * @method getState
+		 * @protected
 		 *
 		 * @return {Boolean}
 		 */
@@ -68,6 +88,7 @@
 		 * Toggles state
 		 *
 		 * @method toggleState
+		 * @protected
 		 */
 		toggleState : function() {
 			this.set('state', !this.get('state'));
@@ -77,6 +98,7 @@
 		 * Determinates whether button is togglable or not
 		 *
 		 * @method isTogglable
+		 * @protected
 		 *
 		 * @return {Boolean}
 		 */
@@ -88,6 +110,7 @@
 		 * Sets caption of button
 		 *
 		 * @method setCaption
+		 * @protected
 		 *
 		 * @param {String} value
 		 */
@@ -99,6 +122,7 @@
 		 * Gets button's caption
 		 *
 		 * @method getCaption
+		 * @protected
 		 *
 		 * @return {String}
 		 */
@@ -168,6 +192,40 @@
 		}
 	});
 
+	/**
+	 * Backbone.UI Button Component extends standard functionality of link or button elements.
+	 *
+	 * @namespace Backbone.UI
+	 * @class Button
+	 * @extends Backbone.View
+	 * @constructor
+	 *
+	 * @param el {Object}   jQuery Object
+	 * @param settings {Object}   Hash array contains settings which will override default one
+	 *     @param {String} settings.caption=''   a string which is displayed in the button
+	 *     @param {Boolean} settings.disabled=false    determinates if component reacts on user's actions
+	 *     @param {String} settings.template='#tpl_button' template string or id of element where template is placed
+	 *     @param {Boolean} settings.toggle=false   when this property is true, 'state' changes every time
+	 *		   when button is clicked; additionaly special events are triggered
+	 *     @param {Boolean} settings.state=true   determinates the current state of button, as default is true
+	 *	       and doesn't change if the 'toggle' property is not set to true
+	 *
+	 * @uses Backbone.js
+	 * @uses Underscore.js
+	 * @uses jQuery
+	 *
+	 * @author Łukasz Lipiński
+	 */
+
+	/**
+	 *
+	 * CSS Classes:
+	 * - ui-btn-disabled   applied on root node when component is disabled
+	 * - ui-btn-active     applied on root node when 'state' property is set to true
+	 *
+	 * JS Classes:
+	 * - js-btn-caption    determinates position of buttons's caption node
+	 */
 	Backbone.UI.Button = Backbone.UI.Component.extend({
 		/**
 		 * @method initialize

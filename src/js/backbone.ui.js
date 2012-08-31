@@ -10,16 +10,6 @@
 	 * Backbone UI
 	 *
 	 * Provides customizable components
-	 *
-	 * @namespace Backbone
-	 * @class UI
-	 * @module Backbone
-	 * @submodule UI
-	 * @private
-	 *
-	 * @uses Backbone.js
-	 * @uses Underscore.js
-	 * @uses jQuery
 	 */
 	Backbone.UI = Backbone.UI || {
 		getNextTabIndex : function() {
@@ -41,14 +31,7 @@
 	 * Backbone.UI Component Model Class provides basic methods for all
 	 * component's models
 	 *
-	 * @namespace Backbone.UI
-	 * @module UI
-	 * @submodule ComponentModel
-	 * @class ComponentModel
 	 * @extends Backbone.Model
-	 * @constructor
-	 *
-	 * @param settings {Object} Hash array which contains all settings
 	 */
 	Backbone.UI.ComponentModel = Backbone.Model.extend({
 		defaults : {
@@ -99,14 +82,7 @@
 	 * Backbone.UI Component View Class provides basic methods for all
 	 * component's views
 	 *
-	 * @namespace Backbone.UI
-	 * @module UI
-	 * @submodule ComponentView
-	 * @class ComponentView
 	 * @extends Backbone.View
-	 * @constructor
-	 *
-	 * @param settings {Object} Hash array which contains all settings
 	 */
 	Backbone.UI.ComponentView = Backbone.View.extend({
 		/**
@@ -148,14 +124,7 @@
 	 * Backbone.UI Component Class provides basic methods for all
 	 * component's constructors
 	 *
-	 * @namespace Backbone.UI
-	 * @module UI
-	 * @submodule Component
-	 * @class Component
 	 * @extends Backbone.View
-	 * @constructor
-	 *
-	 * @param settings {Object} Hash array which contains all settings
 	 */
 	Backbone.UI.Component = Backbone.View.extend({
 		/**

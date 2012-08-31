@@ -3,11 +3,10 @@
 /**
  * Backbone.UI Checkbox Component
  *
- * @module Backbone.UI
- * @submodule Backbone.UI.Checkbox
- * @namespace Backbone.UI
- *
  * Extends standard functionality of input[type='check'] HTMLElement
+ *
+ *
+ *
  *
  * @param settings
  *     @property {String} caption     derteminates checkbox caption
