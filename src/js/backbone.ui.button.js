@@ -3,11 +3,19 @@
 (function(Backbone, _, $) {
 	"use strict";
 
-	var classes = {
+	var component = {
+		className : '.button',
 		events : {
-			main : '.button'
+			view : {
+				'click.button' : '_handleClickEvent',
+				'touchend.button' : '_handleClickEvent'
+			},
+			model : {
+				changeDisabled : 'change:disabled',
+				changeState : 'change:state',
+				changeCaption : 'change:caption'
+			}
 		},
-
 		triggers : {
 			/**
 			 * Triggered every time when button is clicked
@@ -16,6 +24,7 @@
 			 * @param {Object} Backbone.UI.Button
 			 */
 			click : 'btn:click',
+
 			/**
 			 * Triggered only when 'state' is equal true
 			 *
@@ -23,6 +32,7 @@
 			 * @param {Object} Backbone.UI.Button
 			 */
 			clickEven : 'btn:click:even',
+
 			/**
 			 * Triggered only when 'state' is equal false
 			 *
@@ -31,20 +41,17 @@
 			 */
 			clickOdd : 'btn:click:odd'
 		},
+		classes : {
+			ui : {
+				disabled : 'ui-btn-disabled',
+				active : 'ui-btn-active'
+			},
 
-		ui : {
-			disabled : 'ui-btn-disabled',
-			active : 'ui-btn-active'
-		},
-
-		js : {
-			caption : '.js-btn-caption'
+			js : {
+				caption : '.js-btn-caption'
+			}
 		}
 	};
-
-	var buttonViewEvents = {};
-		buttonViewEvents['click' + classes.events.main] = '_handleClickEvent';
-		buttonViewEvents['touchend' + classes.events.main] = '_handleClickEvent';
 
 	/**
 	 * Button Model
@@ -137,24 +144,24 @@
 	 * @extends Backbone.UI.ComponentView
 	 */
 	var ButtonView = Backbone.UI.ComponentView.extend({
-		componentClassName : classes.events.main,
+		componentClassName : component.className,
 		$caption : null,
 
-		events : buttonViewEvents,
+		events : component.events.view,
 
 		initialize : function() {
 			var model = this.model;
 
 			this.controller = this.options.controller;
 
-			model.on('change:disabled', this._handleDisabledChange, this);
-			model.on('change:state', this._handleStateChange, this);
-			model.on('change:caption', this._handleCaptionChange, this);
+			model.on(component.events.model.changeDisabled, this._handleDisabledChange, this);
+			model.on(component.events.model.changeState, this._handleStateChange, this);
+			model.on(component.events.model.changeCaption, this._handleCaptionChange, this);
 
 			this.template = this.getTemplate();
 
 			//Prepare elements
-			this.$caption = this.$el.find(classes.js.caption);
+			this.$caption = this.$el.find(component.classes.js.caption);
 
 			this.render();
 		},
@@ -166,7 +173,14 @@
 		},
 
 		/**
-		 * Event handlers
+		 * UI event handlers
+		 */
+		_handleClickEvent : function() {
+			this.controller._handleClickEvent();
+		},
+
+		/**
+		 * Model event handlers
 		 */
 		_handleCaptionChange : function() {
 			var model = this.model, $caption = this.$caption;
@@ -179,23 +193,19 @@
 			}
 		},
 
-		_handleClickEvent : function() {
-			this.controller._handleClickEvent();
-		},
-
 		_handleDisabledChange : function() {
-			this.$el.toggleClass(classes.ui.disabled, this.model.isDisabled());
+			this.$el.toggleClass(component.classes.ui.disabled, this.model.isDisabled());
 		},
 
 		_handleStateChange : function() {
-			this.$el.toggleClass(classes.ui.active, this.model.getState());
+			this.$el.toggleClass(component.classes.ui.active, this.model.getState());
 		}
 	});
 
 	/**
 	 * **Description**
 	 *
-	 * Backbone.UI.Button component which extends standard functionality of link or button elements.
+	 * Backbone.UI.Button component extends standard functionality of link or button elements.
 	 *
 	 * **Additional information**
 	 *
@@ -213,8 +223,8 @@
 	 * @extends Backbone.View
 	 * @constructor
 	 *
-	 * @param el {Object}   jQuery Object
-	 * @param settings {Object}   Hash array contains settings which will override default one
+	 * @param {Object} el   jQuery Object
+	 * @param {Object} settings   Hash array contains settings which will override default one
 	 *     @param {String} settings.caption=''   a string which is displayed in the button
 	 *     @param {Boolean} settings.disabled=false    determinates if component reacts on user's actions
 	 *     @param {String} settings.template='#tpl_button' template string or id of element where template is placed
@@ -249,9 +259,9 @@
      *                      settings : {
      *                          caption : 'First button',
      *                          toggle : true
-     *		                }
+     *                      }
      *                  }).on("btn:click", function(_btn) {
-	 *	                    console.log(_btn.getState());
+	 *                      console.log(_btn.getState());
 	 *                  });
 	 *              </script>
 	 *         </body>
@@ -288,10 +298,10 @@
 			}
 
 			//Thigger common event
-			this.trigger(classes.triggers.click, this);
+			this.trigger(component.triggers.click, this);
 
 			if (model.isTogglable()) {
-				this.trigger(model.getState() ? classes.triggers.clickEven : classes.triggers.clickOdd, this);
+				this.trigger(model.getState() ? component.triggers.clickEven : component.triggers.clickOdd, this);
 
 				model.toggleState();
 			}

@@ -1,68 +1,59 @@
 /*globals Backbone, _, jQuery */
 
-/**
- *
- * - dd:change:value
- *
- * Component Internal CSS Classes:
- * - caption element
- *     - none
- * - option elements
- *     - js-dd-option
- *
- * Component External CSS Classes:
- * - caption element
- *     - ui-dd-disabled
- * - list element
- *     - ui-dd-opened
- * - options elements
- *     - ui-dd-selected
- *
- * Component Attributes
- * - options elements
- *     - data-dd-option
- */
-
 (function(Backbone, _, $) {
     "use strict";
 
-	var classes = {
+	var component = {
+		className : '.dropdown',
 		events : {
-			main : '.dropdown',
-			list : '.dropdown-list'
-		},
+			view : {
+				'click.dropdown' : '_handleClickEvent',
+				'mouseover.dropdown' : '_handleMouseOverEvent',
+				'mouseout.dropdown' : '_handleMouseOutEvent'
+			},
 
+			model : {
+				changeValue : 'change:value',
+				changeOpened : 'change:opened',
+				changeOptions : 'change:options',
+				changeExclusions : 'change:exclusions'
+			}
+		},
 		triggers : {
+			/**
+			 * Triggered every time when value is changed
+			 *
+			 * @event dd:change:value
+			 * @param {Object} Backbone.UI.Button
+			 * @param {String} value
+			 */
 			changeValue : 'dd:change:value'
-		},
-
-		ui : {
-			opened : 'ui-dd-opened',
-			selected : 'ui-dd-selected',
-			disabled : 'ui-dd-disabled'
-		},
-
-		data : {
-			option : 'data-dd-option'
-		},
-
-		js : {
-			option : '.js-dd-option',
-			closeListLayer : '.js-dd-close-list-layer'
 		}
 	};
 
-	var dropdownViewEvents = {};
-		dropdownViewEvents['click' + classes.events.main] = '_handleClickEvent';
-		dropdownViewEvents['mouseover' + classes.events.main] = '_handleMouseOverEvent';
-		dropdownViewEvents['mouseout' + classes.events.main] = '_handleMouseOutEvent';
+	var componentList = {
+		className : '.dropdown-list',
+		events : {
+			view : {
+				'click.dropdown-list .js-dd-option' : '_handleListOptionClickEvent',
+				'mouseout.dropdown-list' : '_handleListMouseOutEvent'
+			}
+		},
+		classes : {
+			ui : {
+				opened : 'ui-dd-opened'
+			},
 
-	var dropdownListViewEvents = {};
-		dropdownListViewEvents['click' + classes.events.list + ' ' + classes.js.option] = '_handleListOptionClickEvent';
-		dropdownListViewEvents['mouseout' + classes.events.list] = '_handleListMouseOutEvent';
+			data : {
+				option : 'data-dd-option'
+			}
+		}
+	};
 
 	/**
-	 * Models
+	 * Dropdown Model
+	 *
+	 * @extends Backbone.UI.ComponentModel
 	 */
 	var DropdownModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
@@ -84,6 +75,9 @@
 
 		/**
 		 * Opens dropdown list
+		 *
+		 * @method open
+		 * @protected
 		 */
 		open : function() {
 			this.set('opened', true);
@@ -91,6 +85,9 @@
 
 		/**
 		 * Closes dropdown list
+		 *
+		 * @method close
+		 * @protected
 		 */
 		close : function() {
 			this.set('opened', false);
@@ -98,6 +95,9 @@
 
 		/**
 		 * Opens of closes dropdown list depends on the previous state
+		 *
+		 * @method toggleOpened
+		 * @protected
 		 */
 		toggleOpened : function() {
 			this.set('opened', !this.isOpened());
@@ -106,6 +106,9 @@
 		/**
 		 * Returns information whether the list is currently opened or closed
 		 *
+		 * @method isOpened
+		 * @protected
+		 *
 		 * @return {Boolean}
 		 */
 		isOpened : function() {
@@ -113,7 +116,10 @@
 		},
 
 		/**
-		 * Determinates whether dropdown list should be opened on click or not
+		 * Determinates whether dropdown list should be opened on click event or not
+		 *
+		 * @method openOnClick
+		 * @protected
 		 *
 		 * @return {Boolean}
 		 */
@@ -122,7 +128,10 @@
 		},
 
 		/**
-		 * Determinates whether dropdown list should be opened on hover or not
+		 * Determinates whether dropdown list should be opened on hover event or not
+		 *
+		 * @method openOnHover
+		 * @protected
 		 *
 		 * @return {Boolean}
 		 */
@@ -133,6 +142,9 @@
 		/**
 		 * Determinates dropdown list position related to the main container
 		 *
+		 * @method getListPosition
+		 * @protected
+		 *
 		 * @return {String}   @see listPosition
 		 */
 		getListPosition : function() {
@@ -141,6 +153,9 @@
 
 		/**
 		 * Returns dropdown list template
+		 *
+		 * @method getListTemplate
+		 * @protected
 		 *
 		 * @return {String}
 		 */
@@ -151,6 +166,9 @@
 		/**
 		 * Returns value of dropdown
 		 *
+		 * @method getValue
+		 * @protected
+		 *
 		 * @return {Number|String}
 		 */
 		getValue : function() {
@@ -159,6 +177,14 @@
 
 		/**
 		 * Sets value of dropdown
+		 *
+		 * @method setValue
+		 * @protected
+		 *
+		 * @param {String} value   value of one of options existed on a list
+		 * @param {Object} props   hash array with additional settings
+		 *     @param {Boolean} props.silent   determinates if value should be
+		 *                                     set silently (without triggering events)
 		 */
 		setValue : function(value, props) {
 			props = props || {};
@@ -168,6 +194,9 @@
 
 		/**
 		 * Returns options array, additionaly checks which options are excluded
+		 *
+		 * @method getOptions
+		 * @protected
 		 *
 		 * @return {Object}   an array with options
 		 */
@@ -193,7 +222,13 @@
 		/**
 		 * Sets new options for dropdown
 		 *
+		 * @method setOptons
+		 * @protected
+		 *
 		 * @param {Object} value   an array with options
+		 * @param {Object} props   hash array with additional settings
+		 *     @param {Boolean} props.silent   determinates if value should be
+		 *                                     set silently (without triggering events)
 		 */
 		setOptions : function(value, props) {
 			props = props || {};
@@ -203,6 +238,9 @@
 
 		/**
 		 * Returns currently selected option
+		 *
+		 * @method getSelectedOption
+		 * @protected
 		 *
 		 * @return {Object}
 		 */
@@ -216,9 +254,15 @@
 		},
 
 		/**
-		 * Sets exclusions for the dropdown
+		 * Sets exclusions for the dropdown options
+		 *
+		 * @method setExclusions
+		 * @protected
 		 *
 		 * @param {Object} value   an array with values of excluded options
+		 * @param {Object} props   hash array with additional settings
+		 *     @param {Boolean} props.silent   determinates if value should be
+		 *                                     set silently (without triggering events)
 		 */
 		setExclusions : function(value, props) {
 			props = props || {};
@@ -227,7 +271,10 @@
 		},
 
 		/**
-		 * Returns class name which should be unique
+		 * Returns class name specified by developer (should be unique)
+		 *
+		 * @method getClassName
+		 * @protected
 		 *
 		 * @return {String}
 		 */
@@ -237,7 +284,10 @@
 
 		/**
 		 * Checks if the value passed as a parameter is excluded or not.
-		 * (with excluded I mean that whether or not it should be disabled on the list)
+		 * (with excluded I mean that whether should be disabled on the list)
+		 *
+		 * @method isExcluded
+		 * @protected
 		 *
 		 * @param {String|Number} value   the value which have to be checked
 		 *
@@ -258,10 +308,12 @@
 	});
 
 	/**
-	 * Views
+	 * Dropdown List View
+	 *
+	 * @extends Backbone.UI.ComponentView
 	 */
 	var DropdownListView = Backbone.UI.ComponentView.extend({
-		componentClassName : classes.events.list,
+		componentClassName : component.className,
 		//unique id for each list
 		listindex : 0,
 		//width of the list directly after initialization
@@ -271,7 +323,7 @@
 		//a layer which covers entire screen when dropdown list is opened
 		$closeListLayer : null,
 
-		events : dropdownListViewEvents,
+		events : componentList.events,
 
 		initialize : function() {
 			var model = this.model;
@@ -290,10 +342,10 @@
 
 			this.initialWidth = this.$el.outerWidth();
 
-			model.on('change:value', this._handleValueChange, this);
-			model.on('change:opened', this._handleOpenedChange, this);
-			model.on('change:options', this._handleOptionsChange, this);
-			model.on('change:exclusions', this._handleExclusionsChange, this);
+			model.on(component.events.model.changeValue, this._handleValueChange, this);
+			model.on(component.events.model.changeOpened, this._handleOpenedChange, this);
+			model.on(component.events.model.changeOptions, this._handleOptionsChange, this);
+			model.on(component.events.model.changeExclusions, this._handleExclusionsChange, this);
 		},
 
 		render : function() {
@@ -340,13 +392,13 @@
 
 			this.createCloseListLayer();
 
-			$parent.addClass(classes.ui.opened);
-			$el.addClass(classes.ui.opened);
+			$parent.addClass(componentList.classes.ui.opened);
+			$el.addClass(componentList.classes.ui.opened);
 		},
 
 		close : function() {
-			this.$parent.removeClass(classes.ui.opened);
-			this.$el.removeClass(classes.ui.opened);
+			this.$parent.removeClass(componentList.classes.ui.opened);
+			this.$el.removeClass(componentList.classes.ui.opened);
 
 			this.destroyCloseListLayer();
 		},
@@ -361,7 +413,7 @@
 					position : 'absolute', top : 0, left : 0, right : 0, bottom : 0, zIndex : 19000
 				};
 
-			this.$closeListLayer = $('<div class="' + (classes.js.closeListLayer).substr(1) + ' ' + this.model.getClassName() + '" />').appendTo('body').css(attr).one("click", function() {
+			this.$closeListLayer = $('<div class="js-dd-close-list-layer ' + this.model.getClassName() + '" />').appendTo('body').css(attr).one("click", function() {
 				_self.controller._handleCloseListLayerClickEvent();
 			});
 
@@ -386,6 +438,25 @@
 			}
 		},
 
+		/**
+		 * UI event handlers
+		 */
+		_handleListOptionClickEvent : function(e) {
+			var $target = $(e.currentTarget),
+				value = $target.attr(componentList.classes.data.option);
+
+			this.controller._handleListOptionClickEvent(value);
+		},
+
+		_handleListMouseOutEvent : function(e) {
+			var $target = $(e.relatedTarget);
+
+			this.controller._handleListMouseOutEvent(this.$el, $target);
+        },
+
+		/**
+		 * Model event handlers
+		 */
 		_handleOpenedChange : function() {
 			this[this.model.isOpened() ? 'open' : 'close']();
 		},
@@ -410,31 +481,22 @@
 			this.render();
 		},
 
-		_handleListOptionClickEvent : function(e) {
-			var $target = $(e.currentTarget),
-				value = $target.attr(classes.data.option);
-
-			this.controller._handleListOptionClickEvent(value);
-		},
-
-		_handleListMouseOutEvent : function(e) {
-			var $target = $(e.relatedTarget);
-
-			this.controller._handleListMouseOutEvent(this.$el, $target);
-        },
-
 		destroy : function() {
-			this.$el.off(classes.events.main).remove();
+			this.$el.off(componentList.className).remove();
 
 			this.destroyCloseListLayer();
 		}
 	});
 
-
+	/**
+	 * Dropdown View
+	 *
+	 * @extends Backbone.UI.ComponentView
+	 */
 	var DropdownView = Backbone.UI.ComponentView.extend({
-		componentClassName : classes.events.main,
+		componentClassName : component.className,
 
-		events : dropdownViewEvents,
+		events : component.events.view,
 
 		initialize : function() {
 			var model = this.model;
@@ -448,7 +510,7 @@
 				controller : this.controller
 			});
 
-			model.on('change:value', this._handleValueChange, this);
+			model.on(component.events.model.changeValue, this._handleValueChange, this);
 
 			this.render();
 		},
@@ -457,9 +519,9 @@
 			this.$el.html(this.template(this.model.getSelectedOption()));
 		},
 
-		_handleValueChange : function() {
-			this.render();
-		},
+		/**
+		 * UI event handlers
+		 */
 
 		_handleClickEvent : function(e) {
 			this.controller._handleClickEvent();
@@ -475,6 +537,13 @@
 			this.controller._handleMouseOutEvent($target, this.$el, this.listView.$el);
 		},
 
+		/**
+		 * Model event handlers
+		 */
+		_handleValueChange : function() {
+			this.render();
+		},
+
 		destroy : function() {
 			this.listView.destroy();
 			this.listView = null;
@@ -482,7 +551,53 @@
 	});
 
 	/**
-	 * Controller
+	 * **Description**
+	 *
+	 * Backbone.UI.Dropdown component extends standard functionality of Select HTMLElement.
+	 *
+	 * **Additional information**
+	 *
+	 * CSS classes which are applied on the component depends on the state of component:
+	 *
+	 *      ui-dd-opened   applied on root list node when list is visible
+	 *
+	 * CSS classes which should be specified by developer:
+	 *
+	 *		none
+	 *
+	 * HTML attributes which should be specified by developer
+	 *
+	 *      data-dd-option   should be specified on each option node and keeps information about its value
+	 *
+	 * @namespace Backbone.UI
+	 * @class Dropdown
+	 * @extends Backbone.View
+	 * @constructor
+	 *
+	 * @param {Object} el   jQuery Object
+	 * @param {Object} settings   Hash array contains settings which will override default one
+	 *     @param {Boolean} settings.opened=false
+	 *     @param {String} settings.value=''
+	 *     @param {Boolean} settings.openOnClick=true
+	 *     @param {Boolean} settings.openOnHover=true
+	 *     @param {String} settings.template='#tpl_dropdown'
+	 *     @param {String} settings.listPosition='right'
+	 *     @param {Boolean} settings.disabled=false
+	 *     @param {String} settings.initialMessage=''
+	 *     @param {String} settings.className=''
+	 *
+	 *     @param {String} settings.listTemplate='#tpl_dropdown_list'
+	 *     @param {Object} settings.options=Array
+	 *     @param {Object} settings.exclusions=Array
+	 *
+	 * @uses Backbone.js
+	 * @uses Underscore.js
+	 * @uses jQuery
+	 *
+	 * @author Łukasz Lipiński
+	 *
+	 * @example
+	 *     CM.shos();
 	 */
 	Backbone.UI.Dropdown = Backbone.UI.Component.extend({
 		initialize : function() {
@@ -499,11 +614,11 @@
 			});
 
 			//Events
-			this.model.on('change:value', this._handleValueChange, this);
+			this.model.on(component.events.model.changeValue, this._handleValueChange, this);
 		},
 
 		_handleValueChange : function() {
-			this.trigger(classes.triggers.changeValue, this, this.model.getValue());
+			this.trigger(component.triggers.changeValue, this, this.model.getValue());
 		},
 
 		_handleClickEvent : function() {

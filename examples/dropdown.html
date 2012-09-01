@@ -27,7 +27,7 @@
                     option = options[i];
                     cssClass = (option.disabled ? ' ui-dd-disabled' : '') + (data.value == option.value ? ' ui-dd-selected' : '');
                     %>
-                    <div class="js-dd-option option<%= cssClass %>" data-dd-option="<%= option.value %>"><%= option.name +' '+option.value %></div>
+                    <div class="option<%= cssClass %>" data-dd-option="<%= option.value %>"><%= option.name +' '+option.value %></div>
                 <% }
                 %>
             </div>

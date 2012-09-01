@@ -1,54 +1,38 @@
 /*globals Backbone, _, jQuery */
 
-/**
- * Backbone.UI Checkbox Component
- *
- * Extends standard functionality of input[type='check'] HTMLElement
- *
- *
- *
- *
- * @param settings
- *     @property {String} caption     derteminates checkbox caption
- *     @property {Boolean} disabled   determinates if component reacts on user's actions or not
- *     @property {String} template    determinates template source
- *     @property {Boolean} check      determinates if checkbox is checked or not
- *
- * Triggered events:
- * - cbx:change:check    fired when 'check' state is changed
- *
- * CSS Classes:
- * - ui-cbx-disabled
- * - ui-cbx-check
- *
- * JS Classes:
- * - none
- *
- * @uses Backbone
- * @uses _
- * @uses $
- */
-
 (function(Backbone, _, $) {
 	"use strict";
 
-	var classes = {
+	var component = {
+		className : '.checkbox',
+
 		events : {
-			main : '.checkbox'
+			view : {
+				'click.checkbox' : '_handleClickEvent'
+			},
+			model : {
+				changeCheck : 'change:check',
+				changeDisabled : 'change:disabled'
+			}
 		},
 
 		triggers : {
+			/**
+			 * Fired when 'check' state is changed
+			 *
+			 * @event cbx:change:check
+			 * @param {Object} Backbone.UI.Checkbox
+			 * @param {Boolean} returns 'checked' state
+			 */
 			changeCheck : 'cbx:change:check'
 		},
-
-		ui : {
-			disabled : 'ui-cbx-disabled',
-			check : 'ui-cbx-check'
+		classes : {
+			ui : {
+				disabled : 'ui-cbx-disabled',
+				check : 'ui-cbx-check'
+			}
 		}
 	};
-
-	var checkboxViewEvents = {};
-		checkboxViewEvents['click' + classes.events.main] = '_handleClickEvent';
 
 	/**
 	 * Checkbox Model
@@ -67,6 +51,7 @@
 		 * Retrieves whether the element is in the checked state.
 		 *
 		 * @method isChecked
+		 * @protected
 		 *
 		 * @return {Boolean}
 		 */
@@ -78,6 +63,7 @@
 		 * Sets checked state to true
 		 *
 		 * @method check
+		 * @protected
 		 */
 		check : function() {
 			this.set('check', true);
@@ -87,6 +73,7 @@
 		 * Sets checked state to false
 		 *
 		 * @method uncheck
+		 * @protected
 		 */
 		uncheck : function() {
 			this.set('check', false);
@@ -96,6 +83,7 @@
 		 * Reverse check state
 		 *
 		 * @method toggleCheck
+		 * @protected
 		 */
 		toggleCheck : function() {
 			this.set('check', !this.isChecked());
@@ -108,17 +96,17 @@
 	 * @extends Backbone.UI.ComponentView
 	 */
 	var CheckboxView = Backbone.UI.ComponentView.extend({
-		componentClassName : classes.events.main,
+		componentClassName : component.className,
 
-		events : checkboxViewEvents,
+		events : component.events.view,
 
 		initialize : function() {
 			var model = this.model;
 
 			this.controller = this.options.controller;
 
-			model.on('change:disabled', this._handleDisabledChange, this);
-			model.on('change:check', this._handleCheckChange, this);
+			model.on(component.events.model.changeDisabled, this._handleDisabledChange, this);
+			model.on(component.events.model.changeCheck, this._handleCheckChange, this);
 
 			this.template = this.getTemplate();
 
@@ -135,27 +123,60 @@
 		},
 
 		/**
-		 * Event handlers
+		 * UI event handlers
 		 */
 		_handleClickEvent : function() {
 			this.controller._handleClickEvent();
 		},
 
+		/**
+		 * Model event handlers
+		 */
 		_handleDisabledChange : function() {
-			this.$el.toggleClass(classes.ui.disabled, this.model.isDisabled());
+			this.$el.toggleClass(component.classes.ui.disabled, this.model.isDisabled());
 		},
 
 		_handleCheckChange : function() {
-			this.$el.toggleClass(classes.ui.check, this.model.isChecked());
+			this.$el.toggleClass(component.classes.ui.check, this.model.isChecked());
 		}
 	});
 
 	/**
-	 * Checkbox Controller
+	 * **Description**
 	 *
-	 * @class Backbone.UI.Checkbox
-	 * @extends Backbone.UI.Component
+	 * Backbone.UI.Checkbox component extends standard functionality of input[type='check'] HTMLElement.
+	 *
+	 * **Additional information**
+	 *
+	 * CSS classes which are applied on the component depends on the state of component:
+	 *
+	 *      ui-cbx-disabled   applied on root node when component is disabled
+	 *      ui-cbx-check      applied on root node when 'check' property is set to true
+	 *
+	 * CSS classes which should be specified by developer:
+	 *
+	 *      none
+	 *
+	 *
+	 * @namespace Backbone.UI
+	 * @class Checkbox
+	 * @extends Backbone.View
+	 * @constructor
+	 *
+	 * @param el {Object}   jQuery Object
+	 * @param settings {Object}   Hash array contains settings which will override default one
+	 *     @param {String} settings.caption='Default Checkbox'   derteminates checkbox caption
+	 *     @param {Boolean} settings.disabled=false   determinates   if component reacts on user's actions
+	 *     @param {String} settings.template='#tpl_checkbox'   determinates template source
+	 *     @param {Boolean} settings.check=false   determinates if checkbox is checked or not
+	 *
+	 * @uses Backbone.js
+	 * @uses Underscore.js
+	 * @uses jQuery
+	 *
+	 * @author Łukasz Lipiński
 	 */
+
 	Backbone.UI.Checkbox = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings;
@@ -171,7 +192,7 @@
 			});
 
 			//Events
-			this.model.on('change:check', this._handleCheckChange, this);
+			this.model.on(component.events.model.changeCheck, this._handleCheckChange, this);
 		},
 
 		/**
@@ -193,7 +214,7 @@
 		 * @private
 		 */
 		_handleCheckChange : function() {
-			this.trigger(classes.triggers.changeCheck, this, this.model.isChecked());
+			this.trigger(component.triggers.changeCheck, this, this.model.isChecked());
 		},
 
 		/**
@@ -208,14 +229,7 @@
 		},
 
 		/**
-		 * Sets checked state to true
-		 *
-		 * @method check
-		 * @chainable
-		 */
-
-		/**
-		 * Sets checked state to true
+		 * Sets check state to true
 		 *
 		 * @method check
 		 * @chainable
@@ -229,7 +243,7 @@
 		},
 
 		/**
-		 * Sets checked state to false
+		 * Sets check state to false
 		 *
 		 * @method uncheck
 		 * @chainable
