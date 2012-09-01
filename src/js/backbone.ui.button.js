@@ -251,7 +251,7 @@
 	 *         </head>
 	 *         <body>
 	 *              <div class="btn_example button"></div>
-     *
+	 *
 	 *              <script>
 	 *				 //Component initialization
 	 *                  var button = new Backbone.UI.Button({
