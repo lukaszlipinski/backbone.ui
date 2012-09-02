@@ -597,9 +597,52 @@
 	 * @author Łukasz Lipiński
 	 *
 	 * @example
-	 *     CM.shos();
+	 *     <!doctype html>
+	 *	   <html lang="en">
+	 *         <head>
+     *             <script type="text/template" id="tpl_dropdown">
+     *                 <!--div class="dropdown dd-caption" -->
+     *                     <div class="caption js-dd-caption"><%= data.name + ' test ' +data.something %></div>
+     *                 <!--/div-->
+     *             </script>
+     *             <script type="text/template" id="tpl_dropdown_list">
+     *                 <div class="dropdown-list">
+     *                     <% var option, options = data.options, i, l = options.length, cssClass;
+     *
+     *                     for (i = 0; i < l; i++) {
+     *                         option = options[i];
+     *                         cssClass = (option.disabled ? ' ui-dd-disabled' : '') + (data.value == option.value ? ' ui-dd-selected' : ''); %>
+     *                              <div class="option<%= cssClass %>" data-dd-option="<%= option.value %>"><%= option.name +' '+option.value %></div>
+     *                     <% } %>
+     *                 </div>
+     *             </script>
+	 *         </head>
+	 *         <body>
+	 *              <div class="dd_example dropdown"></div>
+	 *
+	 *              <script>
+	 *              //Component initialization
+	 *				var dropdown = new Backbone.UI.Dropdown({
+     *                  el : $('.dd_example'),
+     *                  settings : {
+     *                      value : 0,
+     *                      options : [
+     *                          {name : 'Option', value : 0, something : 'item'},
+     *                          {name : 'Option', value : 1, something : 'itemm'},
+     *                          {name : 'Options', value : 2, something : 'itemm'}
+     *                      ],
+     *                      exclusions : [2]
+     *                  }
+     *              });
+	 *              </script>
+	 *         </body>
+	 *     </html>
 	 */
 	Backbone.UI.Dropdown = Backbone.UI.Component.extend({
+		/**
+		 * @method initialize
+		 * @private
+		 */
 		initialize : function() {
 			var settings = this.options.settings;
 
@@ -617,10 +660,18 @@
 			this.model.on(component.events.model.changeValue, this._handleValueChange, this);
 		},
 
+		/**
+		 * @method _handleValueChange
+		 * @private
+		 */
 		_handleValueChange : function() {
 			this.trigger(component.triggers.changeValue, this, this.model.getValue());
 		},
 
+		/**
+		 * @method _handleClickEvent
+		 * @private
+		 */
 		_handleClickEvent : function() {
 			var model = this.model;
 
@@ -629,6 +680,10 @@
 			}
 		},
 
+		/**
+		 * @method _handleMouseOverEvent
+		 * @private
+		 */
 		_handleMouseOverEvent : function() {
 			var model = this.model;
 
@@ -637,6 +692,10 @@
 			}
 		},
 
+		/**
+		 * @method _handleMouseOutEvent
+		 * @private
+		 */
 		_handleMouseOutEvent : function($target, $el, $list) {
 			var model = this.model;
 
@@ -645,10 +704,18 @@
 			}
 		},
 
+		/**
+		 * @method _handleCloseListLayerClickEvent
+		 * @private
+		 */
 		_handleCloseListLayerClickEvent : function() {
 			this.model.close();
 		},
 
+		/**
+		 * @method _handleListOptionClickEvent
+		 * @private
+		 */
 		_handleListOptionClickEvent : function(value) {
 			var model = this.model;
 
@@ -658,6 +725,10 @@
 			}
 		},
 
+		/**
+		 * @method _handleListMouseOutEvent
+		 * @private
+		 */
 		_handleListMouseOutEvent : function($list, $target) {
 			var model = this.model;
 
@@ -667,13 +738,12 @@
 		},
 
 		/**
-		 * Public Methods
-		 */
-
-		/**
 		 * Opens dropdown list
 		 *
-		 * @return {Object} Backbone.UI.Dropdown
+		 * @method open
+		 * @chainable
+		 *
+		 * @return {Object} Backbone.UI.Dropdown Component Object
 		 */
 		open : function() {
 			this.model.open();
@@ -684,7 +754,10 @@
 		/**
 		 * Closes dropdown list
 		 *
-		 * @return {Object} Backbone.UI.Dropdown
+		 * @method close
+		 * @chainable
+		 *
+		 * @return {Object} Backbone.UI.Dropdown Component Object
 		 */
 		close : function() {
 			this.model.close();
@@ -695,7 +768,10 @@
 		/**
 		 * Opens of closes dropdown list depends on the previous state
 		 *
-		 * @return {Object} Backbone.UI.Dropdown
+		 * @method toggleOpen
+		 * @chainable
+		 *
+		 * @return {Object} Backbone.UI.Dropdown Component Object
 		 */
 		toggleOpen : function() {
 			this.model.toggleOpened();
@@ -706,6 +782,8 @@
 		/**
 		 * Returns information whether the list is currently opened or closed
 		 *
+		 * @method isOpened
+		 *
 		 * @return {Boolean}
 		 */
 		isOpened : function() {
@@ -714,6 +792,8 @@
 
 		/**
 		 * Returns value of dropdown
+		 *
+		 * @method getValue
 		 *
 		 * @return {Number|String}
 		 */
@@ -724,7 +804,15 @@
 		/**
 		 * Sets value of dropdown
 		 *
-		 * @return {Object} Backbone.UI.Dropdown
+		 * @method setValue
+		 * @chainable
+		 *
+		 * @param {String} value   value of one of options existed on a list
+		 * @param {Object} props   hash array with additional settings
+		 *     @param {Boolean} props.silent   determinates if value should be
+		 *                                     set silently (without triggering events)
+		 *
+		 * @return {Object} Backbone.UI.Dropdown Component Object
 		 */
 		setValue : function(value, props) {
 			this.model.setValue(value, props);
@@ -735,9 +823,15 @@
 		/**
 		 * Sets new options for dropdown
 		 *
-		 * @param {Object} value   an array with options
+		 * @method setOptons
+		 * @chainable
 		 *
-		 * @return {Object} Backbone.UI.Dropdown
+		 * @param {Object} value   an array with options
+		 * @param {Object} props   hash array with additional settings
+		 *     @param {Boolean} props.silent   determinates if value should be
+		 *                                     set silently (without triggering events)
+		 *
+		 * @return {Object} Backbone.UI.Dropdown Component Object
 		 */
 		setOptions : function(value, props) {
 			this.model.setOptions(value, props);
@@ -746,11 +840,17 @@
 		},
 
 		/**
-		 * Sets exclusions for the dropdown
+		 * Sets exclusions for the dropdown options
+		 *
+		 * @method setExclusions
+		 * @chainable
 		 *
 		 * @param {Object} value   an array with values of excluded options
+		 * @param {Object} props   hash array with additional settings
+		 *     @param {Boolean} props.silent   determinates if value should be
+		 *                                     set silently (without triggering events)
 		 *
-		 * @return {Object} Backbone.UI.Dropdown
+		 * @return {Object} Backbone.UI.Dropdown Component Object
 		 */
 		setExclusions : function(value, props) {
 			this.model.setExclusions(value, props);
