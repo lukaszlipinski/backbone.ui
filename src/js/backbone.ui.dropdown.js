@@ -44,6 +44,10 @@
 				opened : 'ui-dd-opened'
 			},
 
+			js : {
+				option : 'js-dd-option'
+			},
+
 			data : {
 				option : 'data-dd-option'
 			}
@@ -323,7 +327,14 @@
 		//a layer which covers entire screen when dropdown list is opened
 		$closeListLayer : null,
 
-		events : componentList.events,
+		/*events : {
+			view : {
+				'click.dropdown-list .js-dd-option' : '_handleListOptionClickEvent',
+				'mouseout.dropdown-list' : '_handleListMouseOutEvent'
+			}
+		},*/
+
+		events : componentList.events.view,
 
 		initialize : function() {
 			var model = this.model;
@@ -522,7 +533,6 @@
 		/**
 		 * UI event handlers
 		 */
-
 		_handleClickEvent : function(e) {
 			this.controller._handleClickEvent();
 		},
@@ -563,7 +573,7 @@
 	 *
 	 * CSS classes which should be specified by developer:
 	 *
-	 *		none
+	 *		js-dd-option   should be specified on each option node
 	 *
 	 * HTML attributes which should be specified by developer
 	 *
