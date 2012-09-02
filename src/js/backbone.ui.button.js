@@ -211,16 +211,16 @@
 	 *
 	 * CSS classes which are applied on the component depends on the state of component:
 	 *
-	 *      ui-btn-disabled   applied on root node when component is disabled
-	 *      ui-btn-active     applied on root node when 'state' property is set to true
+	 *     ui-btn-disabled   applied on root node when component is disabled
+	 *     ui-btn-active     applied on root node when 'state' property is set to true
 	 *
 	 * CSS classes which should be specified by developer:
 	 *
-	 *      js-btn-caption    determinates position of buttons's caption node
+	 *     js-btn-caption    determinates position of buttons's caption node
 	 *
 	 * @namespace Backbone.UI
 	 * @class Button
-	 * @extends Backbone.View
+	 * @extends Backbone.UI.Component
 	 * @constructor
 	 *
 	 * @param {Object} el   jQuery Object

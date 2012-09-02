@@ -150,17 +150,12 @@
 	 *
 	 * CSS classes which are applied on the component depends on the state of component:
 	 *
-	 *      ui-cbx-disabled   applied on root node when component is disabled
-	 *      ui-cbx-check      applied on root node when 'check' property is set to true
-	 *
-	 * CSS classes which should be specified by developer:
-	 *
-	 *      none
-	 *
+	 *     ui-cbx-disabled   applied on root node when component is disabled
+	 *     ui-cbx-check      applied on root node when 'check' property is set to true
 	 *
 	 * @namespace Backbone.UI
 	 * @class Checkbox
-	 * @extends Backbone.View
+	 * @extends Backbone.UI.Component
 	 * @constructor
 	 *
 	 * @param el {Object}   jQuery Object
@@ -169,6 +164,7 @@
 	 *     @param {Boolean} settings.disabled=false   determinates   if component reacts on user's actions
 	 *     @param {String} settings.template='#tpl_checkbox'   determinates template source
 	 *     @param {Boolean} settings.check=false   determinates if checkbox is checked or not
+	 *
 	 *
 	 * @uses Backbone.js
 	 * @uses Underscore.js

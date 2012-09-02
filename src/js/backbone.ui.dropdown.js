@@ -327,13 +327,6 @@
 		//a layer which covers entire screen when dropdown list is opened
 		$closeListLayer : null,
 
-		/*events : {
-			view : {
-				'click.dropdown-list .js-dd-option' : '_handleListOptionClickEvent',
-				'mouseout.dropdown-list' : '_handleListMouseOutEvent'
-			}
-		},*/
-
 		events : componentList.events.view,
 
 		initialize : function() {
@@ -569,19 +562,19 @@
 	 *
 	 * CSS classes which are applied on the component depends on the state of component:
 	 *
-	 *      ui-dd-opened   applied on root list node when list is visible
+	 *     ui-dd-opened   applied on root list node when list is visible
 	 *
 	 * CSS classes which should be specified by developer:
 	 *
-	 *		js-dd-option   should be specified on each option node
+	 *     js-dd-option   should be specified on each option node
 	 *
 	 * HTML attributes which should be specified by developer
 	 *
-	 *      data-dd-option   should be specified on each option node and keeps information about its value
+	 *     data-dd-option   should be specified on each option node and keeps information about its value
 	 *
 	 * @namespace Backbone.UI
 	 * @class Dropdown
-	 * @extends Backbone.View
+	 * @extends Backbone.UI.Component
 	 * @constructor
 	 *
 	 * @param {Object} el   jQuery Object

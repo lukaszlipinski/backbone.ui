@@ -43,6 +43,8 @@
 		 * Returns template
 		 *
 		 * @method getTemplate
+		 * @protected
+		 *
 		 * @return {String}
 		 */
 		getTemplate : function() {
@@ -53,6 +55,7 @@
 		 * Enables component's interaction with users
 		 *
 		 * @method enable
+		 * @protected
 		 */
 		enable : function() {
 			this.set('disabled', false);
@@ -62,6 +65,7 @@
 		 * Disables component's interaction with users
 		 *
 		 * @method disable
+		 * @protected
 		 */
 		disable : function() {
 			this.set('disabled', true);
@@ -71,6 +75,8 @@
 		 * Checks if component is disabled
 		 *
 		 * @method isDisabled
+		 * @protected
+		 *
 		 * @return {Boolean}
 		 */
 		isDisabled : function() {
@@ -89,6 +95,8 @@
 		 * Returns precompiled template
 		 *
 		 * @method getTemplate
+		 * @protected
+		 *
 		 * @param {String} template
 		 * @return {String}
 		 */
@@ -107,6 +115,7 @@
 		/**
 		 * Cleans up enviroment when view is being destoryed
 		 *
+		 * @method _destroy
 		 * @private
 		 */
 		_destroy : function() {
