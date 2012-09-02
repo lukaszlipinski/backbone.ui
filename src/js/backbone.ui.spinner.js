@@ -1,38 +1,5 @@
 /*globals Backbone, _, jQuery */
 
-/**
- * It's a component with input and two buttons which allows to increment
- * or decrement value by some amount which can be determinated as a 'step'.
- * It also allows to change value directly in the input field. The value can
- * be limited by 'max' and 'min' settings
- *
- * @param params
- *    @property {Number} value       value of the spinner
- *    @property {Number} step        determinates step which will be take after click on button
- *    @property {Number} max         determinates maximal value which can be stored in the component
- *    @property {Number} min         determinates minimal value which can be stored in the component
- *    @property {Boolean} disabled   determinates if component reacts on user's actions
- *    @property {String} type        determinates how spinner will interprete values
- *	      Possible values:
- *        - 'integer'   treats all values as intergers
- *        - 'float'     treats all values as floats
- *    @property {String} template    determinates template source
- *	  @property {Number} tabIndex    determinates the HTML tabindex attribute
- *
- * Triggered events:
- * - sp:change:value    triggered when value was changed
- * - sp:change:max      triggered when max setting is changed
- * - sp:change:min      triggered when min setting is changed
- *
- * Css classes:
- * - ui-sp-disabled   applied when component is disabled
- *
- * JS classes
- * - js-sp-input      input html node
- * - js-sp-btn-up     button up html node
- * - js-sp-btn-down   button down html node
- */
-
 (function(Backbone, _, $) {
 	"use strict";
 
@@ -55,35 +22,76 @@
 		}
 	};
 
-	var classes = {
+	var component = {
+		className : '.spinner',
 		events : {
-			main : '.spinner'
+			view : {
+				'click.spinner .js-sp-btn-up' : '_handleButtonUpClickEvent',
+				'click.spinner .js-sp-btn-down' : '_handleButtonDownClickEvent',
+				'blur.spinner .js-sp-input' : '_handleInputBlurEvent',
+				'keypress.spinner .js-sp-input' : '_handleInputKeyPressEvent'
+			},
+			model : {
+				changeType : 'change:type',
+				changeMax : 'change:max',
+				changeMin : 'change:min',
+				changeDisabled : 'change:disabled',
+				changeValue : 'change:value'
+			}
 		},
 
 		triggers : {
+			/**
+			 * @private
+			 */
 			revertValue : 'sp:revert:value',
+
+			/**
+			 * Triggered every time when value is changed
+			 *
+			 * @event sp:change:value
+			 * @param {Object} Backbone.UI.Spinner
+			 * @param {Number|String} value
+			 * @param {Number|String} previous value
+			 */
 			changeValue : 'sp:change:value',
+
+			/**
+			 * Triggered when max setting changed
+			 *
+			 * @event sp:change:max
+			 * @param {Object} Backbone.UI.Spinner
+			 * @param {Number} max
+			 */
 			changeMax : 'sp:change:max',
+
+			/**
+			 * Triggered when min setting changed
+			 *
+			 * @event sp:change:min
+			 * @param {Object} Backbone.UI.Spinner
+			 * @param {Number} min
+			 */
 			changeMin : 'sp:change:min'
 		},
+		classes : {
+			ui : {
+				disabled : 'ui-sp-disabled'
+			},
 
-		ui : {
-			disabled : 'ui-sp-disabled'
-		},
-
-		js : {
-			input : '.js-sp-input',
-			buttonUp : '.js-sp-btn-up',
-			buttonDown : '.js-sp-btn-down'
+			js : {
+				input : '.js-sp-input',
+				buttonUp : '.js-sp-btn-up',
+				buttonDown : '.js-sp-btn-down'
+			}
 		}
 	};
 
-	var spinnerViewEvents = {};
-		spinnerViewEvents['click' + classes.events.main + ' ' + classes.js.buttonUp] = '_handleButtonUpClickEvent';
-		spinnerViewEvents['click' + classes.events.main + ' ' + classes.js.buttonDown] = '_handleButtonDownClickEvent';
-		spinnerViewEvents['blur' + classes.events.main + ' ' + classes.js.input] = '_handleInputBlurEvent';
-		spinnerViewEvents['keypress' + classes.events.main + ' ' + classes.js.input] = '_handleInputKeyPressEvent';
-
+	/**
+	 * Spinner Model
+	 *
+	 * @extends Backbone.UI.ComponentModel
+	 */
 	var SpinnerModel = Backbone.UI.ComponentModel.extend({
 		defaults : {
 			template : '#tpl_spinner',
@@ -92,11 +100,14 @@
 		},
 
 		initialize : function() {
-			this.on('change:type', this._handleTypeChange, this);
-			this.on('change:max', this._handleMaxChange, this);
-			this.on('change:min', this._handleMinChange, this);
+			this.on(component.events.model.changeType, this._handleTypeChange, this);
+			this.on(component.events.model.changeMax, this._handleMaxChange, this);
+			this.on(component.events.model.changeMin, this._handleMinChange, this);
 		},
 
+		/**
+		 * Model event handlers
+		 */
 		_handleTypeChange : function() {
 			this.setValue(this.getValue());
 		},
@@ -129,30 +140,76 @@
 			this.set('value', value, {silent : silent});
 
 			if (currentValue === value) {
-				this.trigger(classes.triggers.revertValue, this.controller);
+				this.trigger(component.triggers.revertValue, this.controller);
 			}
 		},
 
+		/**
+		 * Returns spinner's type
+		 *
+		 * @method getType
+		 * @protected
+		 *
+		 * @return {String}
+		 */
 		getType : function() {
 			return this.get('type');
 		},
 
+		/**
+		 * Sets spinner's type
+		 *
+		 * @method setType
+		 * @protected
+		 */
 		setType : function(value) {
 			this.set('type', value);
 		},
 
+		/**
+		 * Returns step setting
+		 *
+		 * @method getStep
+		 * @protected
+		 *
+		 * @return {Number}
+		 */
 		getStep : function() {
 			return this.get('step');
 		},
 
+		/**
+		 * Sets step setting to new one
+		 *
+		 * @method setStep
+		 * @protected
+		 *
+		 * @param {Number} value
+		 */
 		setStep : function(value) {
 			this.set('step', value);
 		},
 
+		/**
+		 * Returns max setting
+		 *
+		 * @method getMax
+		 * @protected
+		 *
+		 * @return {Number}
+		 */
 		getMax : function() {
 			return this.get('max');
 		},
 
+		/**
+		 * Sets max to new one. Changes value if exceeded limit.
+		 *
+		 * @method setMax
+		 * @protected
+		 *
+		 * @param {Number} max
+		 */
 		setMax : function(max) {
 			var value = this.getValue();
 
@@ -164,10 +221,26 @@
 			}
 		},
 
+		/**
+		 * Returns min setting
+		 *
+		 * @method getMin
+		 * @protected
+		 *
+		 * @return {Number}
+		 */
 		getMin : function() {
 			return this.get('min');
 		},
 
+		/**
+		 * Sets min to new one. Changes value if exceeded limit.
+		 *
+		 * @method setMin
+		 * @protected
+		 *
+		 * @param {Number} min
+		 */
 		setMin : function(min) {
 			var value = this.getValue();
 
@@ -179,18 +252,52 @@
 			}
 		},
 
+		/**
+		 * Sets new value of the spinner. Changes it, if exceeded limit.
+		 *
+		 * @method setValue
+		 * @protected
+		 *
+		 * @param {Number|String} value   new value
+		 * @param {Boolean} silent    when set to true, prevents triggering events
+		 */
 		setValue : function(value, silent) {
 			this._changeValue(value, 0, 1, silent);
 		},
 
-		getValue : function(value) {
+		/**
+		 * Returns value of spinner
+		 *
+		 * @method getValue
+		 * @protected
+		 *
+		 * @return {Number|String}
+		 */
+		getValue : function() {
 			return this.get('value');
 		},
 
+		/**
+		 * Returns previous value of spinner.
+		 * (Works only when change:value event has been triggered)
+		 *
+		 * @method getPreviousValue
+		 * @protected
+		 *
+		 * @return {Number|String}
+		 */
 		getPreviousValue : function(value) {
 			return this.previous('value');
 		},
 
+		/**
+		 * Increases value by step
+		 *
+		 * @method stepUp
+		 * @protected
+		 *
+		 * @param {Number} multiplier   step is multiplied by this value, default is 1
+		 */
 		stepUp : function(multiplier) {
 			var step = this.getStep();
 
@@ -199,6 +306,14 @@
 			this._changeValue(this.getValue(), step, 1);
 		},
 
+		/**
+		 * Decreases value by step
+		 *
+		 * @method stepDown
+		 * @protected
+		 *
+		 * @param {Number} multiplier   step is multiplied by this value, default is 1
+		 */
 		stepDown : function(multiplier) {
 			var step = this.getStep();
 
@@ -208,21 +323,26 @@
 		}
 	});
 
+	/**
+	 * Spinner View
+	 *
+	 * @extends Backbone.UI.ComponentView
+	 */
 	var SpinnerView = Backbone.UI.ComponentView.extend({
-		componentClassName : classes.events.main,
+		componentClassName : component.className,
 
 		$input : null,
 
-		events : spinnerViewEvents,
+		events : component.events.view,
 
 		initialize : function() {
 			var model = this.model;
 
 			this.controller = this.options.controller;
 
-			model.on('change:disabled', this._handleDisabledChange, this);
-			model.on('change:value', this._handleValueChange, this);
-			model.on(classes.triggers.revertValue, this._handleRevertChange, this);
+			model.on(component.events.model.changeDisabled, this._handleDisabledChange, this);
+			model.on(component.events.model.changeValue, this._handleValueChange, this);
+			model.on(component.triggers.revertValue, this._handleRevertChange, this);
 
 			this.template = this.getTemplate();
 
@@ -232,7 +352,7 @@
 		render : function() {
 			this.$el.html(this.template(this.model.toJSON()));
 
-			this.$input = this.$el.find(classes.js.input);
+			this.$input = this.$el.find(component.classes.js.input);
 
 			if (!this.$input.is('input')) {
 				throw "Skin should contain 'input' HTMLElement.";
@@ -270,7 +390,7 @@
 		_handleDisabledChange : function() {
 			var isDisabled = this.model.isDisabled();
 
-			this.$el.toggleClass(classes.ui.disabled, isDisabled);
+			this.$el.toggleClass(component.classes.ui.disabled, isDisabled);
 
 			if (isDisabled) {
 				this.$input.attr('disabled', 'disabled');
@@ -282,8 +402,37 @@
 	});
 
 	/**
-	 * Controller
-	 */
+ * It's a component with input and two buttons which allows to increment
+ * or decrement value by some amount which can be determinated as a 'step'.
+ * It also allows to change value directly in the input field. The value can
+ * be limited by 'max' and 'min' settings
+ *
+ * @param params
+ *    @property {Number} value       value of the spinner
+ *    @property {Number} step        determinates step which will be take after click on button
+ *    @property {Number} max         determinates maximal value which can be stored in the component
+ *    @property {Number} min         determinates minimal value which can be stored in the component
+ *    @property {Boolean} disabled   determinates if component reacts on user's actions
+ *    @property {String} type        determinates how spinner will interprete values
+ *	      Possible values:
+ *        - 'integer'   treats all values as intergers
+ *        - 'float'     treats all values as floats
+ *    @property {String} template    determinates template source
+ *	  @property {Number} tabIndex    determinates the HTML tabindex attribute
+ *
+ * Triggered events:e
+ * - sp:change:value    triggered when value was changed
+ * - sp:change:max      triggered when max setting is changed
+ * - sp:change:min      triggered when min setting is changed
+ *
+ * Css classes:
+ * - ui-sp-disabled   applied when component is disabled
+ *
+ * JS classes
+ * - js-sp-input      input html node
+ * - js-sp-btn-up     button up html node
+ * - js-sp-btn-down   button down html node
+ */
 	Backbone.UI.Spinner = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings,
@@ -304,9 +453,9 @@
 			});
 
 			//Events
-			this.model.on('change:value', this._handleValueChange, this);
-			this.model.on('change:max', this._handleMaxChange, this);
-			this.model.on('change:min', this._handleMinChange, this);
+			this.model.on(component.events.model.changeValue, this._handleValueChange, this);
+			this.model.on(component.events.model.changeMax, this._handleMaxChange, this);
+			this.model.on(component.events.model.changeMin, this._handleMinChange, this);
 		},
 
 		_handleButtonUpClickEvent : function() {
@@ -369,15 +518,15 @@
 		_handleValueChange : function() {
 			var model = this.model;
 
-			this.trigger(classes.triggers.changeValue, this, model.getValue(), model.getPreviousValue());
+			this.trigger(component.triggers.changeValue, this, model.getValue(), model.getPreviousValue());
 		},
 
 		_handleMaxChange : function() {
-			this.trigger(classes.triggers.changeMax, this, this.model.getMax());
+			this.trigger(component.triggers.changeMax, this, this.model.getMax());
 		},
 
 		_handleMinChange : function() {
-			this.trigger(classes.triggers.changeMin, this, this.model.getMin());
+			this.trigger(component.triggers.changeMin, this, this.model.getMin());
 		},
 
 		/**
