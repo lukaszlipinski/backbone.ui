@@ -362,6 +362,9 @@
 			this._handleDisabledChange();
 		},
 
+		/**
+		 * UI event handlers
+		 */
 		_handleButtonUpClickEvent : function() {
 			this.controller._handleButtonUpClickEvent();
 		},
@@ -378,6 +381,9 @@
 			this.controller._handleInputKeyPressEvent(this.$input.val(), e.keyCode, e.ctrlKey, e.shiftKey);
 		},
 
+		/**
+		 * Model event handlers
+		 */
 		_handleValueChange : function() {
 			//Change value in the HTML
 			this.$input.val(this.model.getValue());
@@ -402,38 +408,93 @@
 	});
 
 	/**
- * It's a component with input and two buttons which allows to increment
- * or decrement value by some amount which can be determinated as a 'step'.
- * It also allows to change value directly in the input field. The value can
- * be limited by 'max' and 'min' settings
- *
- * @param params
- *    @property {Number} value       value of the spinner
- *    @property {Number} step        determinates step which will be take after click on button
- *    @property {Number} max         determinates maximal value which can be stored in the component
- *    @property {Number} min         determinates minimal value which can be stored in the component
- *    @property {Boolean} disabled   determinates if component reacts on user's actions
- *    @property {String} type        determinates how spinner will interprete values
- *	      Possible values:
- *        - 'integer'   treats all values as intergers
- *        - 'float'     treats all values as floats
- *    @property {String} template    determinates template source
- *	  @property {Number} tabIndex    determinates the HTML tabindex attribute
- *
- * Triggered events:e
- * - sp:change:value    triggered when value was changed
- * - sp:change:max      triggered when max setting is changed
- * - sp:change:min      triggered when min setting is changed
- *
- * Css classes:
- * - ui-sp-disabled   applied when component is disabled
- *
- * JS classes
- * - js-sp-input      input html node
- * - js-sp-btn-up     button up html node
- * - js-sp-btn-down   button down html node
- */
+	 * **Description**
+	 *
+	 * It's a component with input and two buttons which allows to increment
+	 * or decrement value by some amount determinated as a 'step'.
+	 * It also allows to change value directly in the input field. The value can
+	 * be limited by 'max' and 'min' settings.
+	 *
+	 * **Additional information**
+	 *
+	 * CSS classes which are applied on the component depends on the state of component:
+	 *
+	 *     ui-btn-disabled   applied on root node when component is disabled
+	 *     ui-btn-active     applied on root node when 'state' property is set to true
+	 *
+	 * CSS classes which should be specified by developer:
+	 *
+	 *     js-sp-input       determinates position of input html node
+	 *     js-sp-btn-up      determinates position of button up html node
+	 *     js-sp-btn-down    determinates position of button down html node
+	 *
+	 *
+	 * @namespace Backbone.UI
+	 * @class Spinner
+	 * @extends Backbone.UI.Component
+	 * @constructor
+	 *
+	 * @param {Object} el   jQuery Object
+	 * @param {Object} settings   Hash array contains settings which will override default one
+	 *     @param {Number} settings.value       value of the spinner
+	 *     @param {Number} settings.step        determinates step which will be taken after click on button
+	 *     @param {Number} settings.max         determinates maximal value which can be stored in the component
+	 *     @param {Number} settings.min         determinates minimal value which can be stored in the component
+	 *     @param {Boolean} settings.disabled=false   determinates if component reacts on user's actions
+	 *     @param {String} settings.type='integer'        determinates how spinner will interprete values
+	 *	      Possible values:
+	 *        - 'integer'   treats all values as intergers
+	 *        - 'float'     treats all values as floats
+	 *     @param {String} settings.template='#tpl_spinner'    determinates template source
+	 *	   @param {Number} settings.tabIndex=1    determinates the HTML tabindex attribute
+	 *
+	 * @uses Backbone.js
+	 * @uses Underscore.js
+	 * @uses jQuery
+	 *
+	 * @author Łukasz Lipiński
+	 *
+	 * @example
+	 *     <!doctype html>
+	 *	   <html lang="en">
+	 *         <head>
+     *             <script type="text/template" id="tpl_spinner">
+     *                 <!--div class="spinner" -->
+     *                     <div class="middle"><input class="js-sp-input" type="text" value="<%= data.value %>" /></div>
+     *                     <div class="btn_up js-sp-btn-up"></div>
+     *                     <div class="btn_down js-sp-btn-down"></div>
+     *                 <!--/div-->
+     *             </script>
+	 *         </head>
+	 *         <body>
+	 *              <div class="sp_example spinner"></div>
+	 *
+	 *              <script>
+	 *				    //Component initialization
+	 *                  var spinner = new Backbone.UI.Spinner({
+	 *                      el : $('.sp_example'),
+	 *                      settings : {
+	 *                          value : 600,
+	 *                          max : 3300,
+	 *                          type : 'integer',
+	 *                          disabled : false
+	 *                      }
+	 *                  }).on('sp:change:value', function(_sp, val, old_val) {
+	 *                      console.log(val, old_val);
+	 *                  }).on('sp:change:max', function(_sp, max) {
+	 *                      console.log("max changed", max);
+	 *                  }).on('sp:change:min', function(_sp, min) {
+	 *                      console.log("min changed", min);
+	 *                  });
+	 *              </script>
+	 *         </body>
+	 *     </html>
+	 */
 	Backbone.UI.Spinner = Backbone.UI.Component.extend({
+		/**
+		 * @method initialize
+		 * @private
+		 */
 		initialize : function() {
 			var settings = this.options.settings,
 				type = settings.type;
@@ -458,6 +519,14 @@
 			this.model.on(component.events.model.changeMin, this._handleMinChange, this);
 		},
 
+		/**
+		 * UI event handlers
+		 */
+
+		/**
+		 * @method _handleButtonUpClickEvent
+		 * @private
+		 */
 		_handleButtonUpClickEvent : function() {
 			var model = this.model;
 
@@ -468,6 +537,10 @@
 			model.stepUp();
 		},
 
+		/**
+		 * @method _handleButtonDownClickEvent
+		 * @private
+		 */
 		_handleButtonDownClickEvent : function() {
 			var model = this.model;
 
@@ -478,10 +551,18 @@
 			model.stepDown();
 		},
 
+		/**
+		 * @method _handleInputBlurEvent
+		 * @private
+		 */
 		_handleInputBlurEvent : function(value) {
 			this.model.setValue(value, true);
 		},
 
+		/**
+		 * @method _handleInputKeyPressEvent
+		 * @private
+		 */
 		_handleInputKeyPressEvent : function(value, key, ctrl, shift) {
 			var model = this.model,
 				max = model.getMax(), min = model.getMin(),
@@ -515,26 +596,40 @@
 			}
 		},
 
+		/**
+		 * Model event handlers
+		 */
+
+		 /**
+		  * @method _handleValueChange
+		  * @private
+		  */
 		_handleValueChange : function() {
 			var model = this.model;
 
 			this.trigger(component.triggers.changeValue, this, model.getValue(), model.getPreviousValue());
 		},
 
+		/**
+		 * @method _handleMaxChange
+		 * @private
+		 */
 		_handleMaxChange : function() {
 			this.trigger(component.triggers.changeMax, this, this.model.getMax());
 		},
 
+		/**
+		 * @method _handleMinChange
+		 * @private
+		 */
 		_handleMinChange : function() {
 			this.trigger(component.triggers.changeMin, this, this.model.getMin());
 		},
 
 		/**
-		 * Public methods
-		 */
-
-		/**
 		 * Sets value of spinner
+		 * @method setValue
+		 * @chainable
 		 *
 		 * @param {Number} value
 		 *
@@ -549,6 +644,8 @@
 		/**
 		 * Returns value of spinner
 		 *
+		 * @method getValue
+		 *
 		 * @return {Number}
 		 */
 		getValue : function() {
@@ -558,9 +655,11 @@
 		/**
 		 * Increases value of spinner by predefined step
 		 *
+		 * @method stepUp
+		 *
 		 * @param {Number} multiplier   amount the value is multilpied by
 		 *
-		 * @return {Object} Backbone.UI.Spinner
+		 * @return {Object} Backbone.UI.Spinner Component Object
 		 */
 		stepUp : function(multiplier) {
 			this.model.stepUp(multiplier);
@@ -571,9 +670,11 @@
 		/**
 		 * Decreases value of spinner by predefined step
 		 *
+		 * @method stepDown
+		 *
 		 * @param {Number} multiplier   amount the value is multilpied by
 		 *
-		 * @return {Object} Backbone.UI.Spinner
+		 * @return {Object} Backbone.UI.Spinner Component Object
 		 */
 		stepDown : function(multiplier) {
 			this.model.stepDown(multiplier);
@@ -584,9 +685,11 @@
 		/**
 		 * Sets maximal allowed value in spinner
 		 *
+		 * @method setMax
+		 *
 		 * @param {Number} value
 		 *
-		 * @return {Object} Backbone.UI.Spinner
+		 * @return {Object} Backbone.UI.Spinner Component Object
 		 */
 		setMax : function(value) {
 			this.model.setMax(value);
@@ -597,6 +700,8 @@
 		/**
 		 * Returns maximal allowed value in spinner
 		 *
+		 * @method getMax
+		 *
 		 * @return {Number}
 		 */
 		getMax : function() {
@@ -606,9 +711,11 @@
 		/**
 		 * Sets minimal allowed value in spinner
 		 *
+		 * @method setMin
+		 *
 		 * @param {Number} value
 		 *
-		 * @return {Object} Backbone.UI.Spinner
+		 * @return {Object} Backbone.UI.Spinner Component Object
 		 */
 		setMin : function(value) {
 			this.model.setMin(value);
@@ -618,6 +725,8 @@
 
 		/**
 		 * Returns minimal allowed value in spinner
+		 *
+		 * @method getMin
 		 *
 		 * @return {Number}
 		 */
