@@ -205,7 +205,7 @@
 	/**
 	 * **Description**
 	 *
-	 * Backbone.UI.Button component extends standard functionality of link or button elements. 1234567
+	 * Backbone.UI.Button component extends standard functionality of link or button elements. 123
 	 *
 	 * **Additional information**
 	 *
