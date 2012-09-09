@@ -205,7 +205,7 @@
 	/**
 	 * **Description**
 	 *
-	 * Backbone.UI.Button component extends standard functionality of link or button elements. test
+	 * Backbone.UI.Button component extends standard functionality of link or button elements. test2
 	 *
 	 * **Additional information**
 	 *
