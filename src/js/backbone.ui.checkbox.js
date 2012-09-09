@@ -172,7 +172,6 @@
 	 *
 	 * @author Łukasz Lipiński
 	 */
-
 	Backbone.UI.Checkbox = Backbone.UI.Component.extend({
 		initialize : function() {
 			var settings = this.options.settings;
