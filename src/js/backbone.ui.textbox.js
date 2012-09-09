@@ -254,7 +254,7 @@
 		 * @param {Boolean} props.force    determinate if value should be set without checking conditions
 		 * @param {Boolean} props.silent   determinates if events should be fired when value changes
 		 *
-		 * @return {Object|Boolean} error object or true (@todo check why I return false for NaN)
+		 * @return {Object|Boolean} error object or true
 		 */
 		setValue : function(value, props) {
 			props = props || {};
@@ -271,7 +271,7 @@
 				}
 				else if (type === 'number') {
 					if (isNaN(parseInt(value, 10))) {
-						return false;
+						return this.setError({msg : "Value should be a number", value : value, suggestion : max, code : 11});
 					}
 
 					value = parseInt(value, 10);
@@ -279,11 +279,11 @@
 					min = this.getMin();
 
 					if (value > max) {
-						return this.setError({msg : "Value is too big", value : value, suggestion : max, code : 11});
+						return this.setError({msg : "Value is too big", value : value, suggestion : max, code : 12});
 					}
 
 					if (value < min) {
-						return this.setError({msg : "Value is too small", value : value, suggestion : min, code : 12});
+						return this.setError({msg : "Value is too small", value : value, suggestion : min, code : 13});
 					}
 				}
 				else {
