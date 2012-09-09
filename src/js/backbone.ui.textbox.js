@@ -408,10 +408,16 @@
 			this.model.on('change:value', this._handleValueChange, this);
 		},
 
+		/**
+		 * Model event handlers
+		 */
 		_handleValueChange : function() {
 			this.trigger(classes.triggers.changeValue, this, this.model.getValue(), this.model.getPreviousValue());
 		},
 
+		/**
+		 * UI event handlers
+		 */
 		_handleInputKeyPressEvent : function(keyCode, value) {
 			var model = this.model;
 
